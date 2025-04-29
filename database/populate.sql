@@ -39,10 +39,10 @@ VALUES
 
 INSERT INTO `Reviews` (id, userId, gameId, description, grade, createdAt) 
 VALUES 
-('R0000001', 'U0000001', 'B0000001', 'A timeless classic, never gets old.', 10, '2024-04-01 10:00:00'),
-('R0000002', 'U0000002', 'B0000002', 'Really fun with friends, love the trading.', 9, '2024-04-05 14:30:00'),
-('R0000003', 'U0000003', 'B0000003', 'Gets repetitive quickly.', 6, '2024-04-10 12:00:00'),
-('R0000004', 'U0000004', 'B0000004', 'Challenging and exciting game!', 8, '2024-04-15 11:45:00');
+('R0000001', 'U0000001', 'G0000001', 'A timeless classic, never gets old.', 10, '2024-04-01 10:00:00'),
+('R0000002', 'U0000002', 'G0000002', 'Really fun with friends, love the trading.', 9, '2024-04-05 14:30:00'),
+('R0000003', 'U0000003', 'G0000003', 'Gets repetitive quickly.', 6, '2024-04-10 12:00:00'),
+('R0000004', 'U0000004', 'G0000004', 'Challenging and exciting game!', 8, '2024-04-15 11:45:00');
 
 
 INSERT INTO `Wishlists` (gameId, userId)
