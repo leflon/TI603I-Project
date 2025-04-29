@@ -20,10 +20,11 @@ CREATE TABLE IF NOT EXISTS `Users`(
 CREATE TABLE IF NOT EXISTS `BoardGames`(
 	id CHAR(8) PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
-	price DECIMAL(10,2) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
 	description TEXT NOT NULL,
 	-- Not using YEAR because it only stores from year 1901. Some games were created way before that, even in the BC era, hence using a signed type.
 	yearPublished SMALLINT,
+    avg_grade TINYINT UNSIGNED,
 	min_players TINYINT UNSIGNED,
 	max_players TINYINT UNSIGNED,
 	min_play_time TINYINT UNSIGNED, -- In minutes
@@ -31,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `BoardGames`(
 	min_age TINYINT UNSIGNED,
 	max_age TINYINT UNSIGNED,
 	quantity_available SMALLINT UNSIGNED NOT NULL,
-	quantity_lent SMALLINT UNSIGNED,
+	quantity_lent SMALLINT UNSIGNED NOT NULL,
 	category VARCHAR(255), -- We only keep the first category given to each game for simplification
 	-- The following columns, even though they are arrays, will be considered atomic.
 	-- This data will merely be displayed on the game's product page, but we perform no operation on it whatsoever.
@@ -51,11 +52,12 @@ CREATE TABLE IF NOT EXISTS `BoardGames`(
 CREATE TABLE IF NOT EXISTS `Reviews`(
 	id CHAR(8) PRIMARY KEY,
 	userId CHAR(8) NOT NULL,
-	gameId CHAR(8) NOT NULL,
+    gameId CHAR(8) NOT NULL,
 	description TEXT,
 	grade TINYINT UNSIGNED NOT NULL,
 	createdAt DATETIME,
-	FOREIGN KEY (`userId`) REFERENCES `Users`(`id`)
+	FOREIGN KEY (`userId`) REFERENCES `Users`(`id`),
+    FOREIGN KEY (`gameId`) REFERENCES `BoardGames`(`id`)
 );
 
 CREATE TABLE IF NOT EXISTS `Wishlists`(
