@@ -33,8 +33,11 @@ VALUES
 ('G0000007', 'Exploding Kittens', 19.99, 'Fast-paced card game about kittens and explosions.', 2015, 2, 5, 10, 15, 7, 99, 12, 1, 'Party',
     '["Exploding Kittens Series"]', '["NSFW Edition"]', '["Elan Lee", "Matthew Inman"]', '["Matthew Inman"]', '["Exploding Kittens LLC"]', '["Push Your Luck"]', '["Barking Kittens"]'),
 
-('G0000008', 'Root', 59.99, 'Asymmetric war game in a woodland setting.', 2018, 2, 4, 60, 90, 10, 99, 4, 1, 'Wargame',
-    '["Root Series"]', '["Root: The Riverfolk Expansion"]', '["Cole Wehrle"]', '["Kyle Ferrin"]', '["Leder Games"]', '["Area Control", "Asymmetric"]', '["Underworld Expansion"]');
+('G0000008', 'Root', 599, 'Asymmetric war game in a woodland setting.', 2018, 2, 4, 60, 90, 10, 99, 0, 0, 'Wargame',
+    '["Root ries"]', '["Root: Thiverfolk Expansion"]', '["ColWehrle"]', '["Kyle rin"]', '["Led Games"]', '["Area Control", "Asymmetric"]', '["Underworld Expansion"]'),
+    
+('G0000009', 'Exploding Kittens', 19.99, 'Fast-paced card game about kittens and explosions.', 2015, 2, 5, 10, 15, 7, 99, 12, 1, 'Party',
+    '["Exploding Kittens Series"]', '["NSFW Edition"]', '["Elan Lee", "Matthew Inman"]', '["Matthew Inman"]', '["Exploding Kittens LLC"]', '["Push Your Luck"]', '["Barking Kittens"]');
 
 
 INSERT INTO `Reviews` (id, userId, gameId, description, grade, createdAt) 
