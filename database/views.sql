@@ -1,4 +1,4 @@
-# View game simplified (simplified data with only name, description, yearPublished, min/maxPlayers, min/maxPlayTime, minAge, category, price)
+# View game simplified   (simplified data with only name, description, yearPublished, min/maxPlayers, min/maxPlayTime, minAge, category, price)
 CREATE VIEW `SimpleGameView` AS
 SELECT
     id,
@@ -16,10 +16,10 @@ SELECT
     price
 FROM `BoardGames`;
 
-# View cheap games (< 10 €)
+# View cheap games (< 15 €)
 CREATE VIEW `CheapGames` AS
 SELECT * FROM `SimpleGameView`
-WHERE price < 10.0;
+WHERE price < 15.0;
 
 # View games for kids (if age< 10)
 CREATE VIEW `GameForKids` AS
@@ -66,3 +66,4 @@ CREATE VIEW `LowGradeGames` AS
 SELECT * FROM `SimpleGameView`
 WHERE avg_grade IS NOT NULL AND avg_grade <= 2;
 
+select * from loanhistory;
