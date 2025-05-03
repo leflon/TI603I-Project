@@ -8,7 +8,7 @@ BEGIN
     DECLARE quantity SMALLINT;
     SELECT quantity_available INTO quantity
     FROM BoardGames
-    WHERE id = NEW.gameID;
+    WHERE id = NEW.gameId;
 
     IF quantity = 0 THEN
         SIGNAL SQLSTATE '45000'
@@ -34,18 +34,44 @@ DELIMITER ;
 
 -- Cannot insert a Review if an order has not been made
 DELIMITER $$
+
 CREATE TRIGGER review_check
 BEFORE INSERT ON Reviews
 FOR EACH ROW
-BEGIN 
-    DECLARE orderId CHAR(8);
-    SELECT id INTO orderId
-    FROM Orders
-    WHERE userId = NEW.userId AND gameId = NEW.gameId;
+BEGIN
+    DECLARE order_exists BOOLEAN;
 
-    IF orderId IS NULL THEN
+    SELECT EXISTS (
+        SELECT 1
+        FROM Orders o
+        JOIN OrderItems oi ON o.id = oi.orderId
+        WHERE o.userId = NEW.userId AND oi.gameId = NEW.gameId
+    ) INTO order_exists;
+
+    IF NOT order_exists THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'You cannot review a game you have not ordered it.';
+        SET MESSAGE_TEXT = 'You cannot review a game you have not ordered.';
     END IF;
+END$$
+
+DELIMITER ;
+
+
+
+-- Average is updated each time a new grade is given
+DELIMITER $$
+CREATE TRIGGER average_grade_update
+AFTER INSERT ON Reviews
+FOR EACH ROW
+BEGIN
+    DECLARE avg_grade DECIMAL(3,2);
+
+    SELECT AVG(grade) INTO avg_grade
+    FROM Reviews
+    WHERE gameId = NEW.gameId;
+
+    UPDATE BoardGames
+    SET average_grade = avg_grade
+    WHERE id = NEW.gameId;
 END$$
 DELIMITER ;
