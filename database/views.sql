@@ -53,7 +53,7 @@ JOIN `Users` AS u ON o.userId = u.id
 JOIN `BoardGames` AS bg ON oi.gameId = bg.id
 JOIN `Loans` AS l ON o.id = l.orderId
 WHERE o.type = 'rental'
-ORDER BY o.createdAt;
+ORDER BY o.createdAt DESC;
 
 
 # View only good reviews (if grade > 3.5)
@@ -66,4 +66,3 @@ CREATE VIEW `LowGradeGames` AS
 SELECT * FROM `SimpleGameView`
 WHERE avg_grade IS NOT NULL AND avg_grade <= 2;
 
-select * from loanhistory;
