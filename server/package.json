@@ -1,0 +1,8 @@
+{
+  "name": "mist-server",
+  "module": "src/index.js",
+  "type": "module",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
