@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `BoardGames`(
 	description TEXT NOT NULL,
 	-- Not using YEAR because it only stores from year 1901. Some games were created way before that, even in the BC era, hence using a signed type.
 	yearPublished SMALLINT,
-    avg_grade TINYINT UNSIGNED,
+    avg_grade DECIMAL(10,1) UNSIGNED,
 	min_players TINYINT UNSIGNED,
 	max_players TINYINT UNSIGNED,
 	min_play_time TINYINT UNSIGNED, -- In minutes
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS `Loans`(
 	id CHAR(8) PRIMARY KEY,
 	max_return_date DATE NOT NULL,
 	actual_return_date DATE,
-	penalty SMALLINT UNSIGNED,
+	penalty DECIMAL(10,1) UNSIGNED,
 	orderId CHAR(8) NOT NULL,
 	FOREIGN KEY (`orderId`) REFERENCES `Orders`(`id`)
 );
