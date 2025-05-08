@@ -38,12 +38,6 @@ const router = createRouter({
       meta: {title: 'My Cart'}
     },
     {
-      path: '/wishlists',
-      name: 'wishlists',
-      component: () => import('../views/Wishlist.vue'),
-      meta: {title: 'My Wishlist'}
-    },
-    {
       path: '/product/:id',
       name: 'products',
       component: () => import('../views/Product.vue'),
@@ -61,7 +55,7 @@ const router = createRouter({
 router.beforeEach((to, from) => {
   // need to change isLoggedIn to verify if the user is already logged in
   const isLoggedIn = true;
-  const protectedRoutes = ['users', 'wishlists', 'orders', 'carts']
+  const protectedRoutes = ['users', 'orders', 'carts']
 
   if (to.meta?.title){
     document.title = to.meta.title;
