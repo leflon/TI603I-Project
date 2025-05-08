@@ -8,7 +8,6 @@
   <div>
     <h1>WELCOME TO MIST !</h1>
     <Navbar/>
-    <Home/>
     <RouterView />
   </div>
 </template>
