@@ -32,8 +32,8 @@ const router = createRouter({
       meta: {title: 'My Account'}
     },
     {
-      path: '/carts',
-      name: 'carts',
+      path: '/cart',
+      name: 'cart',
       component: () => import('../views/Cart.vue'),
       meta: {title: 'My Cart'}
     },
@@ -55,7 +55,7 @@ const router = createRouter({
 router.beforeEach((to, from) => {
   // need to change isLoggedIn to verify if the user is already logged in
   const isLoggedIn = true;
-  const protectedRoutes = ['users', 'orders', 'carts']
+  const protectedRoutes = ['users', 'cart']
 
   if (to.meta?.title){
     document.title = to.meta.title;
