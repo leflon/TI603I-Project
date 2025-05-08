@@ -5,7 +5,7 @@
 <template>
   <nav>
     <div class="nav-left">
-      <RouterLink to="/home">MIST</RouterLink>
+      <RouterLink to="/">MIST</RouterLink>
       <RouterLink to="/categories">Categories</RouterLink>
       <RouterLink to="/support">About</RouterLink>
       <input type="text" placeholder="Search" class="search" />

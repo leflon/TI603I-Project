@@ -1,7 +1,7 @@
 <script setup>
-    import Gamecard from './Gamecard.vue'
-    import Carrousel from './Carrousel.vue'
-    import Gamecat from './Gamecat.vue'
+    import Gamecard from '../components/Gamecard.vue'
+    import Carrousel from '../components/Carrousel.vue'
+    import Gamecat from '../components/Gamecat.vue'
 </script>
 
 <template>
