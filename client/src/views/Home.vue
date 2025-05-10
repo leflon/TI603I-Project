@@ -1,7 +1,20 @@
 <script setup>
+    import { ref, onMounted } from 'vue'
+    import axios from 'axios'
+
     import Gamecard from '../components/Gamecard.vue'
     import Carrousel from '../components/Carrousel.vue'
     import Gamecat from '../components/Gamecat.vue'
+
+    const products = ref([])
+    onMounted(async () => {
+        try {
+            const res = await axios.get('http://localhost:3000/api/products/bestsellers')
+            products.value = res.data.bestsellers
+        } catch (error) {
+            console.error('Error fetching products:', error)
+        }
+    })
 </script>
 
 <template>
@@ -16,11 +29,16 @@
             <Gamecat/>
             <Gamecat/>
         </div>
-        <h2>Less than 17 €</h2>
+        <h2>Less than 40 €</h2>
         <div class="gamecards">
-            <Gamecard/>
-            <Gamecard/>
-            <Gamecard/>
+            <Gamecard
+                v-for="product in products.filter(p => p.price < 40)"
+                :key="product.id"
+                :title="product.name"
+                :price="product.price"
+                :image="product.imageUrl"
+                :labels="product.category ? [product.category] : []" 
+            />
         </div>
     </div>  
 </template>
@@ -30,15 +48,13 @@
         display: flex;
         flex-direction: row;
         justify-content: space-evenly;
-        margin: 0 10%;
         margin: 20px 0;
     }
     .gamecards{
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
-        margin: 0 10%;
-        margin: 20px 0;
+        justify-content: flex-start;
+        gap: 20px;
     }
 </style>
 

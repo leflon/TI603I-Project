@@ -1,15 +1,29 @@
+<script setup>
+    import { computed } from 'vue'
+
+        const props = defineProps({
+        title: String,
+        price: Number,
+        image: String,
+        labels: Array
+        })
+
+        const bgImage = computed(() =>
+        `linear-gradient(to top, rgba(255, 255, 255, 0.815), transparent), url(${props.image})`
+        )
+
+</script>
+
 <template>
-    <div class="gamecard">
-        <div class="bottom">
-            <h2>Jumanji</h2>
-            <div class="labels">
-                <span>Label 1</span>
-                <span>Label 2</span>
-                <span>Label 3</span>
-            </div>
-            <h3 class="price">16 €</h3>
-        </div>
+    <div class="gamecard" :style="{ backgroundImage: bgImage.value }">
+    <div class="bottom">
+      <h2>{{ title }}</h2>
+      <div class="labels">
+        <span v-for="(label, index) in labels" :key="index">{{ label }}</span>
+      </div>
+      <h3 class="price">{{ price }} €</h3>
     </div>
+  </div>
 </template>
 
 <style scoped>
@@ -78,6 +92,6 @@
         position: absolute;
         bottom: 16px;
         right: 12px;
-        font-size: 25px;
+        font-size: 16px;
     }
 </style>
