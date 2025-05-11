@@ -19,7 +19,20 @@ app.listen(3000, () => {
 
 
 
-import {decreaseGameQuantityByQuantity} from "./lib/db";
+import {decreaseGameQuantityByQuantity, getCartByUserID, removeItemFromWishlist} from "./lib/db";
 import {getQuantityOfGame} from "./lib/db";
+import {addItemToCart} from "./lib/db";
+import { addItemToWishlist } from "./lib/db";
+import { getWishlistByUserID } from "./lib/db";
 
-// addItemToCart("U0000001", "G0000001", 1)
+console.log(await addItemToCart("U0000001", "G0000001", 1))
+
+
+// console.log(await removeItemFromWishlist("U0000001", "G0000001"));
+
+// console.log(await getWishlistByUserID("U0000001"));
+
+// console.log(await addItemToWishlist("U0000001", "G0000001"));
+
+// console.log(await getWishlistByUserID("U0000001"));
+

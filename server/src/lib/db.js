@@ -50,7 +50,7 @@ export async function createUser(first_name, surname, username, email, password)
 		'SELECT * FROM users WHERE email = ?',
 		[email]
 	)
-	if (!results.length) 
+	if (!results.length)
 		throw new Error(`A user already has this email '${results.email}'`)
 
 	if (!isValidPassword(password))
@@ -58,14 +58,14 @@ export async function createUser(first_name, surname, username, email, password)
 
 	if (!(surname.length && first_name.length && username.length))
 		throw new Error("At least of first_name, surname or username is empty");
-	
+
 	const password_hash = encryptPassword(password);
 
 	 results = await connection.query(
 		"INSERT INTO users VALUES (ID(), ?, ?, ?, ?, ?, 0)",
 		[first_name, surname, username, email, password_hash]
 	 )
-		
+
 }
 
 
@@ -90,14 +90,12 @@ export async function checkUserCredentials(email, password) {
 		throw new Error(`No user with this email '${email}' is in the database `);
 	if (results.length > 1)
 		throw new Error(`More than one user is linked to this email '${email}'`);
-	
+
 	return compareSync(password, results[0].password_hash)
 }
-
-
 /**
  * Finds a user by its ID and deletes him from the users table
- * @param {string} userID 
+ * @param {string} userID
  * @returns {void} nothing is returned by the function
  */
 export async function deleteUserByID(userID) {
@@ -109,17 +107,31 @@ export async function deleteUserByID(userID) {
 	if (!results.affectedRows)
 		throw new Error(`No user has this id '${userID}'`)
 }
-
-// functions needed 
+// functions needed
 export async function getCartByUserID(userID) {
+	if (!userID)
+		throw new Error("userID was not provided");
+
 	const [results] = await connection.query(
 		"SELECT * FROM carts WHERE userId = ?",
 		[userID]
 	)
-}
 
+	if (!results.length)
+		return `Cart of user '${userID}' is empty`
+
+	let answer = {}
+	results.forEach( (e) => {
+		answer[e.gameId] = e.quantity
+	})
+	answer = Object.fromEntries(
+		Object.entries(answer).sort(([, a], [, b]) => b - a)
+	);
+
+	return answer
+}
 export async function getQuantityOfGame(boardgameID) {
-	let [boardgameAvailableQuantity] = await connection.query("SELECT quantity_available FROM boardgames WHERE id = ?", 
+	let [boardgameAvailableQuantity] = await connection.query("SELECT quantity_available FROM boardgames WHERE id = ?",
 		[boardgameID]
 	)
 
@@ -131,8 +143,6 @@ export async function getQuantityOfGame(boardgameID) {
 
 
 }
-
-
 export async function decreaseGameQuantityByQuantity(boardgameID, quantity){
 	let boardgameAvailableQuantity = await getQuantityOfGame(boardgameID)
 
@@ -144,26 +154,111 @@ export async function decreaseGameQuantityByQuantity(boardgameID, quantity){
 		"UPDATE boardgames SET quantity_available = ? WHERE id = ?;",
 		[boardgameAvailableQuantity - quantity, boardgameID]
 	)
+
+}
+export async function addItemToCart(userID, boardgameID, quantity){
+	if (userID.length && boardgameID.length && quantity.length)
+		throw new Error(`Invalid parameter(s): userID='${userID}', boardgameID='${boardgameID}', quantity='${quantity}'`);
+
+	let quantityInStock = await getQuantityOfGame(boardgameID)
+	if (quantityInStock < quantity)
+		throw new Error(`Not enough of '${boardgameID}' in stock ('${quantityInStock}' available vs '${quantity}' asked)`);
+
+	let [gameExists] = await connection.query(
+		"SELECT id from boardgames WHERE id = ?", [boardgameID]
+	)
+	if (!gameExists.length)
+		throw Error(`No game with id '${boardgameID}' in database`)
+
+	let [possessedQuantity] = await connection.query(
+		"SELECT quantity from carts WHERE gameId = ? AND userId = ?",
+		[boardgameID, userID]
+	)
+	let newQuantity = quantity
+	if (possessedQuantity.length){
+		possessedQuantity = possessedQuantity[0].quantity
+		newQuantity = possessedQuantity + quantity
+	} 
+	
+
+	if (possessedQuantity){
+		let [results] = await connection.query(
+			"UPDATE carts SET quantity = ? WHERE userID = ? AND gameID = ?",
+			[newQuantity, userID, boardgameID ]
+		)
+		await decreaseGameQuantityByQuantity(boardgameID, quantity)
+		return `Successfully added ${quantity} copie(s) of item '${boardgameID}' to '${userID}'s cart`	
+	}
+	else {
+		let [results] = await connection.query(
+			"INSERT INTO carts VALUES (?, ?, ?)",
+			[boardgameID, userID, newQuantity]
+		)
+		await decreaseGameQuantityByQuantity(boardgameID, quantity);
+		return `Successfully added ${quantity} copie(s) of item '${boardgameID}' to '${userID}'s cart`	
+	}
+}
+export async function getWishlistByUserID(userID){
+	if (!userID.length)
+		throw new Error(`Invalid parameter(s): userID='${userID}'`);
+	const [results] = await connection.query("SELECT gameId from wishlists WHERE userId = ?", [userID])
+
+	let answer = []
+	results.forEach((e) => {
+		answer.push(e.gameId)
+	})
+
+	return answer
 	
 }
+export async function addItemToWishlist(userID, boardgameID){
+	if (!userID.length || !boardgameID.length)
+		throw new Error(`Invalid parameter(s): userID='${userID}', boardgameID='${boardgameID}'`);
 
+	let [gameExists] = await connection.query(
+		"SELECT id from boardgames WHERE id = ?", [boardgameID]
+	)
+	if (!gameExists.length)
+		throw Error(`No game with id '${boardgameID}' in database`) 
 
-// export async function addItemToCart(userID, boardgameID, quantity){
-// 	const [results] = await connection.query(
-// 		"SELECT * from carts WHERE gameId = ? AND userId"
-// 	)
+	let [gameInWishlist] = await connection.query(
+		"SELECT gameId from wishlists WHERE gameId = ? AND userId = ?",
+		[boardgameID, userID] 
+	)
+	if (gameInWishlist.length){
+		console.log(`Game '${boardgameID}' is already in user '${userID}'s wishlist !`)
+		return
+	}
 	
-// 	const [results] = await connection.query(
-// 		"INSERT INTO carts VALUES (?, ?, ?)",
-// 		[boardgameID, userID, quantity]
-// 	)
-// }
+	let [results] = await connection.query(
+		"INSERT INTO wishlists VALUES (?, ?)",
+		[boardgameID, userID]
+	)
 
-// Get ordersByUserID
+	return `Successfully added game '${boardgameID}' to user '${userID}'s wishlist`
+	
+}
+export async function removeItemFromWishlist(userID, boardgameID){
+	if (!userID.length || !boardgameID.length)
+		throw new Error(`Invalid parameter(s): userID='${userID}', boardgameID='${boardgameID}'`);
+
+	let [gameExists] = await connection.query(
+		"SELECT id from boardgames WHERE id = ?", [boardgameID]
+	)
+	if (!gameExists.length)
+		throw Error(`No game with id '${boardgameID}' in database`) 
+
+	const [results] = await connection.query(
+		"DELETE FROM wishlists WHERE gameId = ? AND userId = ?",
+		[boardgameID, userID]
+	)
+	return `Successfully deleted '${boardgameID}' from '${userID}'s wishlist`;
+	
+
+}
 export async function getOrderByUserID(userID){
 	const [results] = connection.query(
-
+		"SELECT * FROM orders WHERE userId = ?", [userID]
 	)
+	return results
 }
-
-// Get wishlistByUserID
