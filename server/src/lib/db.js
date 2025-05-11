@@ -101,12 +101,69 @@ export async function checkUserCredentials(email, password) {
  * @returns {void} nothing is returned by the function
  */
 export async function deleteUserByID(userID) {
-	const results = await connection.query(
+	const [results] = await connection.query(
 		"DELETE FROM users WHERE id = ?",
 		[userID]
 	);
 
-	if (!results[0].affectedRows)
+	if (!results.affectedRows)
 		throw new Error(`No user has this id '${userID}'`)
 }
 
+// functions needed 
+export async function getCartByUserID(userID) {
+	const [results] = await connection.query(
+		"SELECT * FROM carts WHERE userId = ?",
+		[userID]
+	)
+}
+
+export async function getQuantityOfGame(boardgameID) {
+	let [boardgameAvailableQuantity] = await connection.query("SELECT quantity_available FROM boardgames WHERE id = ?", 
+		[boardgameID]
+	)
+
+	if (!boardgameAvailableQuantity.length)
+		throw new Error(`No game found wtih this id '${boardgameID}'`)
+
+	return boardgameAvailableQuantity[0].quantity_available
+
+
+
+}
+
+
+export async function decreaseGameQuantityByQuantity(boardgameID, quantity){
+	let boardgameAvailableQuantity = await getQuantityOfGame(boardgameID)
+
+	if (!(boardgameAvailableQuantity >= quantity)){
+		throw Error(`There is not enough copies of game "${boardgameID}' in stock ! (asked for ${quantity}, but only ${boardgameAvailableQuantity + quantity} in stock)`)
+	}
+
+	const [results] = await connection.query(
+		"UPDATE boardgames SET quantity_available = ? WHERE id = ?;",
+		[boardgameAvailableQuantity - quantity, boardgameID]
+	)
+	
+}
+
+
+// export async function addItemToCart(userID, boardgameID, quantity){
+// 	const [results] = await connection.query(
+// 		"SELECT * from carts WHERE gameId = ? AND userId"
+// 	)
+	
+// 	const [results] = await connection.query(
+// 		"INSERT INTO carts VALUES (?, ?, ?)",
+// 		[boardgameID, userID, quantity]
+// 	)
+// }
+
+// Get ordersByUserID
+export async function getOrderByUserID(userID){
+	const [results] = connection.query(
+
+	)
+}
+
+// Get wishlistByUserID

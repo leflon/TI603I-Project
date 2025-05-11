@@ -3,7 +3,8 @@
   "module": "src/index.js",
   "type": "module",
   "scripts": {
-    "dev": "bun run src/index.js"
+    "dev": "bun run src/index.js",
+    "reset": "bun run src/resetdb.js;"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

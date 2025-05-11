@@ -1,5 +1,6 @@
 import express from "express";
 import {config} from "dotenv";
+
 config();
 
 const app = express();
@@ -15,3 +16,10 @@ app.get("/api/get_all_data", (req, res) => {
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+
+
+
+import {decreaseGameQuantityByQuantity} from "./lib/db";
+import {getQuantityOfGame} from "./lib/db";
+
+// addItemToCart("U0000001", "G0000001", 1)
