@@ -2,10 +2,7 @@
   <div>
     <h1>Your account</h1>
     <hr class="solid">
-    <h2>Details</h2>
-    name: <i>John Doe</i><br>
-    email: <i>john.doe@efrei.net</i><br>
-    password: <i>********</i><br>
+    <UserProfile/>
     <hr class="solid">
     <Orders/>
     <hr class="solid">
@@ -17,6 +14,7 @@
 <script setup>
   import Wishlist from '../components/Wishlist.vue';
   import Orders from '../components/Orders.vue';
+import UserProfile from '@/components/UserProfile.vue';
 </script>
   
 <style scoped>

@@ -104,7 +104,7 @@ router.get('/:id', (req, res) => {
       category: 'Family'
     }
   ];
-  const product = products.find(p => p.id === parseInt(req.params.id));
+  const product = products.find(p => p.id === req.params.id);
   if (product) {
     res.json({product});
   } else {

@@ -3,12 +3,12 @@ import express from 'express';
 const router = express.Router();
 
 // All user routes require authentication
-router.use((req, res, next) => {
-  if (!req.user || !req.user.id) {
-    return res.status(401).json({error: 'Unauthorized'});
-  }
-  next();
-});
+// router.use((req, res, next) => {
+//   if (!req.user || !req.user.id) {
+//     return res.status(401).json({error: 'Unauthorized'});
+//   }
+//   next();
+// });
 
 /**
  * @route   GET /api/users/profile
@@ -36,7 +36,8 @@ router.get('/cart', (req, res) => {
       id: 1,
       name: 'Product 1',
       price: 29.99,
-      imageUrl: 'https://i.ytimg.com/vi/11e0LgJ_giw/sddefault.jpg'
+      imageUrl: 'https://i.ytimg.com/vi/11e0LgJ_giw/sddefault.jpg',
+      quantity : 2
     }
   ];
   res.json({cart});
@@ -74,7 +75,8 @@ router.get('/orders', (req, res) => {
         {
           id: 1,
           name: 'Product 1',
-          price: 29.99
+          price: 29.99,
+          quantity: 1
         }
       ],
       total: 29.99,
