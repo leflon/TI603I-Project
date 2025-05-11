@@ -1,8 +1,7 @@
 
 import mysql from 'mysql2/promise';
 import bcrypt, {compareSync, hashSync} from 'bcryptjs';
-import {config} from 'dotenv';
-config();
+import {isValidEmail, isValidPassword} from './utils.js';
 
 const connection = await mysql.createConnection({
 	host: process.env.DB_HOST,
@@ -10,22 +9,6 @@ const connection = await mysql.createConnection({
 	database: process.env.DB_NAME,
 	password: process.env.DB_PASSWORD,
 });
-
-function isValidEmail(email) {
-	const re = /\S+@\S+\.\S+/;
-	return re.test(email);
-}
-
-function isValidPassword(password) {
-	return password.length > 8;
-}
-
-
-function encryptPassword(password_plaintext) {
-	const salt = bcrypt.genSaltSync(10);
-	const hash = bcrypt.hashSync(password_plaintext, salt);
-	return hash;
-}
 
 /**
  * Creates a new user in the database.
@@ -42,7 +25,6 @@ function encryptPassword(password_plaintext) {
  * @returns {Promise<void>} Resolves when the user is successfully created.
  */
 export async function createUser(first_name, surname, username, email, password) {
-
 	if (!isValidEmail(email))
 		throw new Error("Provided email is invalid");
 
@@ -51,29 +33,27 @@ export async function createUser(first_name, surname, username, email, password)
 		[email]
 	);
 	if (!results.length)
-		throw new Error(`A user already has this email '${results.email}'`);
+		throw new Error(`'${results.email}' is already in use.`);
 
 	if (!isValidPassword(password))
-		throw new Error(`Provided password '${password}' does not match requirements (see isValidPassword implementation)`);
+		throw new Error(`Provided password '${password}' does not match requirements.`);
 
 	if (!(surname.length && first_name.length && username.length))
-		throw new Error("At least of first_name, surname or username is empty");
+		throw new Error("Missing information.");
 
-	const password_hash = encryptPassword(password);
+	const password_hash = hashSync(password, 10);
 
-	results = await connection.query(
-		"INSERT INTO users VALUES (ID(), ?, ?, ?, ?, ?, 0)",
+	connection.query(
+		"INSERT INTO Users VALUES (ID(), ?, ?, ?, ?, ?, 0)",
 		[first_name, surname, username, email, password_hash]
 	);
 
 }
 
-
+// #region User
 
 /**
- * Verifies user credentials by checking the provided email and password
- * against the database records.
- *
+ * Verifies user credentials against the database records.
  * @param {string} email - The email address of the user to authenticate.
  * @param {string} password - The plaintext password provided by the user.
  * @returns {boolean} True if the password matches the stored hash, otherwise false.
@@ -83,7 +63,7 @@ export async function createUser(first_name, surname, username, email, password)
 export async function checkUserCredentials(email, password) {
 
 	const [results] = await connection.query(
-		"SELECT * FROM Users WHERE email = ?",
+		"SELECT password_hash FROM Users WHERE email = ?",
 		[email]
 	);
 	if (!results.length)
@@ -94,7 +74,7 @@ export async function checkUserCredentials(email, password) {
 	return compareSync(password, results[0].password_hash);
 }
 /**
- * Finds a user by its ID and deletes him from the users table
+ * Finds a user by their ID and deletes them from the users table
  * @param {string} userID
  * @returns {void} nothing is returned by the function
  */
@@ -107,18 +87,13 @@ export async function deleteUserByID(userID) {
 	if (!results.affectedRows)
 		throw new Error(`No user has this id '${userID}'`);
 }
-// functions needed
-export async function getCartByUserID(userID) {
-	if (!userID)
-		throw new Error("userID was not provided");
+
+export async function getUserCart(userID) {
 
 	const [results] = await connection.query(
 		"SELECT * FROM carts WHERE userId = ?",
 		[userID]
 	);
-
-	if (!results.length)
-		return `Cart of user '${userID}' is empty`;
 
 	let answer = {};
 	results.forEach((e) => {
@@ -130,37 +105,72 @@ export async function getCartByUserID(userID) {
 
 	return answer;
 }
-export async function getQuantityOfGame(boardgameID) {
-	let [boardgameAvailableQuantity] = await connection.query("SELECT quantity_available FROM boardgames WHERE id = ?",
-		[boardgameID]
+
+// #endregion
+
+// #region Games
+export async function getGame(gameId) {
+	let [results] = await connection.query(
+		"SELECT * FROM boardgames WHERE id = ?",
+		[gameId]
 	);
 
+	if (!results.length)
+		throw new Error(`No game found wtih this id '${gameId}'`);
+
+	return results[0];
+}
+
+export async function searchGames(query) {
+	// Sanitize query to avoid SQL injection
+	query = query.replace(/[%_;]/g, '\\$&');
+	let [results] = await connection.query(
+		"SELECT * FROM boardgames WHERE name LIKE ?",
+		[`%${query}%`]
+	);
+
+	if (!results.length)
+		throw new Error(`No game found wtih this name '${query}'`);
+
+	return results;
+}
+
+export async function getBestSellers() {
+	let [results] = await connection.query(
+		"SELECT * FROM boardgames ORDER BY GAME_ORDERS_COUNT DESC LIMIT 5"
+	);
+	return results;
+}
+
+
+export async function getGameQuantity(gameId) {
+	let [boardgameAvailableQuantity] = await connection.query("SELECT quantity_available FROM boardgames WHERE id = ?",
+		[gameId]
+	);
 	if (!boardgameAvailableQuantity.length)
-		throw new Error(`No game found wtih this id '${boardgameID}'`);
+		throw new Error(`Game not found`);
 
 	return boardgameAvailableQuantity[0].quantity_available;
 
-
-
 }
-export async function decreaseGameQuantityByQuantity(boardgameID, quantity) {
-	let boardgameAvailableQuantity = await getQuantityOfGame(boardgameID);
+export async function decreaseGameQuantity(boardgameID, quantity) {
+	let availableQuantity = await getGameQuantity(boardgameID);
 
-	if (!(boardgameAvailableQuantity >= quantity)) {
-		throw Error(`There is not enough copies of game "${boardgameID}' in stock ! (asked for ${quantity}, but only ${boardgameAvailableQuantity + quantity} in stock)`);
+	if (quantity > availableQuantity) {
+		throw Error(`Not enough stock (${availableQuantity} available)`);
 	}
-
-	const [results] = await connection.query(
+	connection.query(
 		"UPDATE boardgames SET quantity_available = ? WHERE id = ?;",
-		[boardgameAvailableQuantity - quantity, boardgameID]
+		[availableQuantity - quantity, boardgameID]
 	);
-
 }
+// #endregion
+
 export async function addItemToCart(userID, boardgameID, quantity) {
 	if (userID.length && boardgameID.length && quantity.length)
 		throw new Error(`Invalid parameter(s): userID='${userID}', boardgameID='${boardgameID}', quantity='${quantity}'`);
 
-	let quantityInStock = await getQuantityOfGame(boardgameID);
+	let quantityInStock = await getGameQuantity(boardgameID);
 	if (quantityInStock < quantity)
 		throw new Error(`Not enough of '${boardgameID}' in stock ('${quantityInStock}' available vs '${quantity}' asked)`);
 
@@ -186,7 +196,7 @@ export async function addItemToCart(userID, boardgameID, quantity) {
 			"UPDATE carts SET quantity = ? WHERE userID = ? AND gameID = ?",
 			[newQuantity, userID, boardgameID]
 		);
-		await decreaseGameQuantityByQuantity(boardgameID, quantity);
+		await decreaseGameQuantity(boardgameID, quantity);
 		return `Successfully added ${quantity} copie(s) of item '${boardgameID}' to '${userID}'s cart`;
 	}
 	else {
@@ -194,7 +204,7 @@ export async function addItemToCart(userID, boardgameID, quantity) {
 			"INSERT INTO carts VALUES (?, ?, ?)",
 			[boardgameID, userID, newQuantity]
 		);
-		await decreaseGameQuantityByQuantity(boardgameID, quantity);
+		await decreaseGameQuantity(boardgameID, quantity);
 		return `Successfully added ${quantity} copie(s) of item '${boardgameID}' to '${userID}'s cart`;
 	}
 }

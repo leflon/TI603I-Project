@@ -5,6 +5,7 @@ import productsRouter from './routes/products.js';
 import userRoutes from './routes/users.js';
 import authRoutes from './routes/auth.js';
 
+require('dotenv').config();
 
 const app = express();
 
