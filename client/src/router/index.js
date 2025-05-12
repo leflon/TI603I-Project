@@ -1,5 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/Home.vue'
+import {createRouter, createWebHistory} from 'vue-router';
+import HomeView from '../views/Home.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,7 +8,7 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
-      meta: {title: 'Mist Home Page'}
+      meta: {title: 'Home'}
     },
     {
       path: '/support',
@@ -41,24 +41,24 @@ const router = createRouter({
       path: '/product/:id',
       name: 'products',
       component: () => import('../views/Product.vue'),
-      meta: {title: 'Our Products'}
+      meta: {title: 'Product'},
     },
     {
       path: '/categories',
       name: 'categories',
       component: () => import('../views/Categories.vue'),
-      meta: {title: 'Our Categories'}      
+      meta: {title: 'Categories'},
     }
   ],
-})
+});
 
 router.beforeEach((to, from) => {
   // need to change isLoggedIn to verify if the user is already logged in
   const isLoggedIn = true;
-  const protectedRoutes = ['users', 'cart']
+  const protectedRoutes = ['users', 'cart'];
 
-  if (to.meta?.title){
-    document.title = to.meta.title;
+  if (to.meta?.title) {
+    document.title = to.meta.title + ' • Mist';
   } else {
     document.title = 'Mist';
   }
@@ -66,7 +66,7 @@ router.beforeEach((to, from) => {
     return {name: 'login'};
   }
   return true;
-})
+});
 
 export default router
-;
+  ;

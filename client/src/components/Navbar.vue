@@ -21,6 +21,9 @@
 
 <style scoped>
   nav {
+    z-index: 1000;
+    position: sticky;
+    top: 10px;
     width: 100%;
     display: flex;
     flex-direction: row;

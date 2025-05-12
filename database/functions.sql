@@ -1,4 +1,5 @@
 DELIMITER $$
+
 CREATE FUNCTION IF NOT EXISTS ID()
 RETURNS CHAR(8) NO SQL
 BEGIN
@@ -9,8 +10,8 @@ CREATE FUNCTION IF NOT EXISTS CALCULATE_CART_PRICE(userId CHAR(8))
 RETURNS DECIMAL(10,2) DETERMINISTIC
 BEGIN
 	DECLARE total DECIMAL(10,2);
-	SELECT SUM(g.price * c.quantity) FROM Carts c
-	JOIN BoardGames g  c.gameId = g.id
+	SELECT SUM(g.price * c.quantity) INTO total FROM Carts c
+	JOIN BoardGames g ON c.gameId = g.id
 	WHERE c.userId = userId;
 	RETURN total;
 END$$
@@ -31,6 +32,7 @@ BEGIN
 	SELECT SUM(DISTINCT o.userId) into total FROM Orders o
 	JOIN OrderItems i ON i.orderId = o.id
 	WHERE i.gameId = gameId;
+	RETURN total;
 END$$ 
 
 DELIMITER ;
