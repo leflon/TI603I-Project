@@ -107,7 +107,7 @@ export async function getGame(gameId) {
 	);
 
 	if (!results.length)
-		throw new Error(`No game found wtih this id '${gameId}'`);
+		throw new Error(`No game found with this id '${gameId}'`);
 
 	return results[0];
 }

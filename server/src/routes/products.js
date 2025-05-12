@@ -1,5 +1,5 @@
 import express from 'express';
-import {getBestSellers, searchGames, getAllCategories} from '../lib/db';
+import {getBestSellers, searchGames, getAllCategories, getGame} from '../lib/db';
 
 const router = express.Router();
 
@@ -56,6 +56,15 @@ router.get('/search', async (req, res) => {
     limit
   });
   res.json({products});
+});
+
+router.get('/:id', async (req, res) => {
+  const {id} = req.params;
+  const product = await getGame(id);
+  if (!product) {
+    return res.status(404).json({message: 'Product not found'});
+  }
+  return res.json({product});
 });
 
 export default router;

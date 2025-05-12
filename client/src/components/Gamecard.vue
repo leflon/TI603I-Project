@@ -11,14 +11,9 @@
 </template>
 
 <script setup>
-import {computed} from 'vue';
-
 const props = defineProps({
   data: Object,
 });
-const bgImage = computed(() =>
-  `linear-gradient(to top, rgba(255, 255, 255, 0.815), transparent), url(${props.image})`
-);
 </script>
 
 <style scoped>
