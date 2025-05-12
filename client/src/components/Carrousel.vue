@@ -33,11 +33,13 @@ const navigate = () => {
   router.push('/product/' + product.id);
 };
 
-const nextSlide = () => {
+const nextSlide = (e) => {
+  e.stopPropagation();
   currentIndex.value = (currentIndex.value + 1) % props.products.length;
 };
 
-const prevSlide = () => {
+const prevSlide = (e) => {
+  e.stopPropagation();
   currentIndex.value = (currentIndex.value - 1 + props.products.length) % props.products.length;
 };
 

@@ -1,0 +1,39 @@
+import {Router} from 'express';
+import {addItemToCart, getUserCart} from '../lib/db';
+
+const router = Router();
+
+// All cart endpoints require authentication
+router.use((req, res, next) => {
+	if (!req.user) {
+		return res.status(401).json({message: 'Unauthorized', success: false});
+	}
+	next();
+});
+
+router.post('/add', async (req, res) => {
+	const {gameId, quantity} = req.body;
+	if (!gameId || !quantity) {
+		return res.status(400).json({success: false, message: 'Game Id and quantity are required'});
+	}
+	if (quantity <= 0) {
+		return res.status(400).json({success: false, message: 'Quantity must be greater than 0'});
+	}
+	try {
+		await addItemToCart(req.user.id, gameId, quantity);
+		res.json({success: true});
+	} catch (err) {
+		return res.status(400).json({success: false, message: err.message});
+	}
+});
+
+router.post('/remove', (req, res) => {
+
+});
+
+router.get('/get', async (req, res) => {
+	const cart = await getUserCart(req.user.id);
+	res.json({cart});
+});
+
+export default router;

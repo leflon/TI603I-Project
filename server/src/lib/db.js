@@ -184,7 +184,6 @@ export async function getGameQuantity(gameId) {
 		throw new Error(`Game not found`);
 
 	return boardgameAvailableQuantity[0].quantity_available;
-
 }
 export async function decreaseGameQuantity(boardgameID, quantity) {
 	let availableQuantity = await getGameQuantity(boardgameID);
@@ -201,7 +200,6 @@ export async function decreaseGameQuantity(boardgameID, quantity) {
 
 // #region Carts
 export async function getUserCart(userID) {
-
 	const [results] = await connection.query(
 		"SELECT * FROM carts WHERE userId = ?",
 		[userID]
@@ -211,54 +209,42 @@ export async function getUserCart(userID) {
 	results.forEach((e) => {
 		answer[e.gameId] = e.quantity;
 	});
-	answer = Object.fromEntries(
-		Object.entries(answer).sort(([, a], [, b]) => b - a)
-	);
 
 	return answer;
 }
 
-export async function addItemToCart(userID, boardgameID, quantity) {
-	if (userID.length && boardgameID.length && quantity.length)
-		throw new Error(`Invalid parameter(s): userID='${userID}', boardgameID='${boardgameID}', quantity='${quantity}'`);
-
-	let quantityInStock = await getGameQuantity(boardgameID);
-	if (quantityInStock < quantity)
-		throw new Error(`Not enough of '${boardgameID}' in stock ('${quantityInStock}' available vs '${quantity}' asked)`);
+export async function addItemToCart(userID, gameId, quantity) {
+	const stock = await getGameQuantity(gameId);
+	if (quantity > stock)
+		throw new Error(`Not enough of '${gameId}' in stock (${stock} available)`);
 
 	let [gameExists] = await connection.query(
-		"SELECT id from boardgames WHERE id = ?", [boardgameID]
+		"SELECT id from boardgames WHERE id = ?", [gameId]
 	);
 	if (!gameExists.length)
-		throw Error(`No game with id '${boardgameID}' in database`);
+		throw Error(`No game with id '${gameId}' in database`);
 
-	let [possessedQuantity] = await connection.query(
+	let [alreadyInCart] = await connection.query(
 		"SELECT quantity from carts WHERE gameId = ? AND userId = ?",
-		[boardgameID, userID]
+		[gameId, userID]
 	);
-	let newQuantity = quantity;
-	if (possessedQuantity.length) {
-		possessedQuantity = possessedQuantity[0].quantity;
-		newQuantity = possessedQuantity + quantity;
-	}
+	alreadyInCart = alreadyInCart.length ? alreadyInCart[0].quantity : 0;
+	let newQuantity = quantity + alreadyInCart;
 
-
-	if (possessedQuantity) {
+	if (alreadyInCart) {
 		let [results] = await connection.query(
-			"UPDATE carts SET quantity = ? WHERE userID = ? AND gameID = ?",
-			[newQuantity, userID, boardgameID]
+			"UPDATE carts SET quantity = ? WHERE userId = ? AND gameId = ?",
+			[newQuantity, userID, gameId]
 		);
-		await decreaseGameQuantity(boardgameID, quantity);
-		return `Successfully added ${quantity} copie(s) of item '${boardgameID}' to '${userID}'s cart`;
 	}
 	else {
 		let [results] = await connection.query(
 			"INSERT INTO carts VALUES (?, ?, ?)",
-			[boardgameID, userID, newQuantity]
+			[gameId, userID, newQuantity]
 		);
-		await decreaseGameQuantity(boardgameID, quantity);
-		return `Successfully added ${quantity} copie(s) of item '${boardgameID}' to '${userID}'s cart`;
 	}
+	console.log(`Added ${quantity} of '${gameId}' to user '${userID}' cart (Remaining stock: ${stock - quantity})`);
+	await decreaseGameQuantity(gameId, quantity);
 }
 // #endregion
 

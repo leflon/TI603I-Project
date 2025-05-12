@@ -3,15 +3,30 @@ import {ref} from 'vue';
 import call from '@/lib/api';
 import {onMounted} from 'vue';
 import {useRouter} from 'vue-router';
+import {store} from '@/lib/store';
 const router = useRouter();
 const id = router.currentRoute.value.params.id;
 const product = ref(null);
+const quantity = ref(1);
 
 onMounted(async () => {
     const data = await call(`/api/products/${id}`, 'GET');
     product.value = data.product;
-    console.log(product.value);
-})
+});
+
+const onAdd = async () => {
+    if (store.user) {
+        const res = await call(`/api/cart/add`, {method: 'POST', body: {gameId: id, quantity: quantity.value}});
+        console.log(res);
+        if (res.success) {
+            store.cart[id] = store.cart[id] ? store.cart[id] + quantity.value : quantity.value;
+        } else {
+            alert(res.message);
+        }
+    } else {
+        router.push('/login?redirect=/product/' + id);
+    }
+}
 
 
 </script>
@@ -29,11 +44,14 @@ onMounted(async () => {
                     <div class='price'>€{{ product.price }}</div>
                     <div>
                         Quantity:
-                        <select name='quantity' id='quantity'>
+                        <select name='quantity' id='quantity' v-model='quantity'>
                             <option v-for='i in [1, 2, 3, 4, 5]' :key='i' :value='i'>{{ i }}</option>
                         </select>
                     </div>
-                    <button>Add to cart</button>
+                    <button @click='onAdd'>
+                        <span v-if='store.user'>Add to cart</span>
+                        <span v-else>Login to add to cart</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -136,10 +154,12 @@ button {
     cursor: pointer;
     transition: background .1s ease;
 
-    &:hover,
-    &:focus {
-        background-color: var(--color-dark);
+    & span {
+        color: inherit;
+    }
 
+    &:hover {
+        background-color: var(--color-dark);
     }
 }
 
@@ -150,15 +170,19 @@ table {
     max-width: 100%;
     border-collapse: collapse;
 }
+
 tr {
     border-bottom: 1px solid var(--color-primary);
 }
+
 tr:last-child {
     border-bottom: none;
 }
+
 td {
     padding: 10px 0;
 }
+
 tr td:first-child {
     font-weight: bold;
 }

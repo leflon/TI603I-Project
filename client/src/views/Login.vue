@@ -5,6 +5,7 @@ import {useRouter} from 'vue-router';
 
 const router = useRouter();
 
+
 const issues = reactive({
     login: '',
     register: ''
@@ -13,7 +14,6 @@ const issues = reactive({
 onMounted(() => {
     if (store.user)
         router.push('/');
-
 });
 
 
@@ -37,7 +37,8 @@ const onSubmit = async (event) => {
         if (!data.success) {
             issues[action] = data.message;
         } else {
-            router.push('/');
+            // Forces reload which ensures cookies are set
+            window.location.href = router.currentRoute.value.query.redirect || '/';
         }
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);

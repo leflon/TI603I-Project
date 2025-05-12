@@ -5,6 +5,7 @@ import authMiddleware from './middleware/auth.js';
 import productsRouter from './routes/products.js';
 import userRoutes from './routes/users.js';
 import authRoutes from './routes/auth.js';
+import cartRoutes from './routes/cart.js';
 
 require('dotenv').config();
 
@@ -23,6 +24,7 @@ app.use(authMiddleware);
 // API Routes
 app.use('/api/products', productsRouter);
 app.use('/api/users', userRoutes);
+app.use('/api/cart', cartRoutes);
 app.use('/api/auth', authRoutes);
 
 

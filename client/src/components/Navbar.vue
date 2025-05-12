@@ -2,7 +2,15 @@
 import {RouterLink, RouterView} from 'vue-router';
 import {store} from '@/lib/store';
 import call from '@/lib/api';
+import {computed} from 'vue';
 
+const itemsInCart = computed(() => {
+  let count = 0;
+  for (const q of Object.values(store.cart)) {
+    count += q;
+  }
+  return count;
+});
 
 const logout = async () => {
   await call('/api/auth/logout', {method: 'POST'});
@@ -19,10 +27,13 @@ const logout = async () => {
       <input type="text" placeholder="Search" class="search" />
     </div>
     <div class="nav-right">
-      <RouterLink to="/cart"><i class="fa-solid fa-cart-shopping"></i></RouterLink>
+      <RouterLink to="/cart">
+        <div class='cart-size'>{{ itemsInCart }}</div>
+        <i class="fa-solid fa-cart-shopping"></i>
+      </RouterLink>
       <RouterLink to="/account"><i class="fa-solid fa-circle-user"></i></RouterLink>
-      <a href='#' @click='logout' v-if='store.user'>Log out ({{ store.user.first_name + ' ' + store.user.last_name }})
-      </a>
+      <a href='#' @click='logout' v-if='store.user'>Log out ({{ store.user.first_name + ' ' + store.user.last_name
+        }})</a>
       <RouterLink to="/login" v-else>Log in</RouterLink>
     </div>
   </nav>
@@ -57,10 +68,26 @@ nav {
 }
 
 nav a {
+  position: relative;
   display: inline-block;
   padding: 0 1rem;
   border-left: 1px solid var(--color-border);
   color: white;
+}
+
+.cart-size {
+  position: absolute;
+  top: -9px;
+  right: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 12px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
 }
 
 input {
