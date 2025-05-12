@@ -1,8 +1,9 @@
 <script setup>
 import {store} from '@/lib/store';
-import router from '@/router';
 import {onMounted, reactive} from 'vue';
+import {useRouter} from 'vue-router';
 
+const router = useRouter();
 
 const issues = reactive({
     login: '',

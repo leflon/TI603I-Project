@@ -1,5 +1,5 @@
 <template>
-  <div class="carousel" v-if="products.length > 0">
+  <div class="carousel" v-if="products.length > 0" @click='navigate'>
     <div class="carousel-slide"
       :style="{ backgroundImage: `linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent), url(${products[currentIndex].imageUrl})` }">
       <div class="title-overlay">
@@ -13,6 +13,9 @@
 
 <script setup>
 import {ref, onMounted, onBeforeUnmount} from 'vue';
+import {useRouter} from 'vue-router';
+
+const router = useRouter();
 
 const props = defineProps({
   products: {
@@ -24,6 +27,11 @@ const props = defineProps({
 const currentIndex = ref(0);
 const hovered = ref(false);
 let interval = null;
+
+const navigate = () => {
+  const product = props.products[currentIndex.value];
+  router.push('/product/' + product.id);
+};
 
 const nextSlide = () => {
   currentIndex.value = (currentIndex.value + 1) % props.products.length;
@@ -53,6 +61,7 @@ onBeforeUnmount(() => {
   border-radius: 15px;
   position: relative;
   margin: 20px auto;
+  cursor: pointer;
 }
 
 .carousel-slide {

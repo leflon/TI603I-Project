@@ -11,8 +11,7 @@
 
     <h2>Less than €20</h2>
     <div class="gamecards">
-      <Gamecard v-for="product in lessThan" :key="product.id" :title="product.name" :price="product.price"
-        :image="product.imageUrl" :labels="product.category ? [product.category] : []" />
+      <Gamecard v-for="product in lessThan" :key="product.id" :data='product' />
     </div>
   </div>
 </template>
