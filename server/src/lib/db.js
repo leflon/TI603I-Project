@@ -10,6 +10,7 @@ const connection = await mysql.createConnection({
 	password: process.env.DB_PASSWORD,
 });
 
+// #region User
 /**
  * Creates a new user in the database.
  *
@@ -50,7 +51,6 @@ export async function createUser(first_name, surname, username, email, password)
 
 }
 
-// #region User
 
 /**
  * Verifies user credentials against the database records.
@@ -88,23 +88,7 @@ export async function deleteUserByID(userID) {
 		throw new Error(`No user has this id '${userID}'`);
 }
 
-export async function getUserCart(userID) {
 
-	const [results] = await connection.query(
-		"SELECT * FROM carts WHERE userId = ?",
-		[userID]
-	);
-
-	let answer = {};
-	results.forEach((e) => {
-		answer[e.gameId] = e.quantity;
-	});
-	answer = Object.fromEntries(
-		Object.entries(answer).sort(([, a], [, b]) => b - a)
-	);
-
-	return answer;
-}
 
 // #endregion
 
@@ -121,23 +105,65 @@ export async function getGame(gameId) {
 	return results[0];
 }
 
-export async function searchGames(query) {
-	// Sanitize query to avoid SQL injection
-	query = query.replace(/[%_;]/g, '\\$&');
+export async function getAllCategories(limit = 10) {
+	if (isNaN(limit) || limit < 0)
+		limit = 10;
 	let [results] = await connection.query(
-		"SELECT * FROM boardgames WHERE name LIKE ?",
-		[`%${query}%`]
+		`SELECT DISTINCT category FROM BoardGames LIMIT ${limit}`
 	);
+	return results.map((e) => e.category);
+}
 
-	if (!results.length)
-		throw new Error(`No game found wtih this name '${query}'`);
-
+export async function searchGames({
+	name = "",
+	category = '',
+	minPlayers = 0,
+	maxPlayers = 100,
+	minPlayTime = 0,
+	maxPlayTime = 10000,
+	minAge = 0,
+	maxAge = 100,
+	minPrice = 0,
+	maxPrice = 10000,
+	limit = 10
+} = {}) {
+	// Preventing SQL injection since this value is directly concaténated in the query
+	if (isNaN(limit) || limit < 0)
+		limit = 10;
+	const query = `
+		SELECT * FROM BoardGames
+		WHERE
+			name LIKE ?
+			AND category LIKE ?
+			AND min_players >= ?
+			AND max_players <= ?
+			AND min_play_time >= ?
+			AND max_play_time <= ?
+			AND min_age >= ?
+			AND max_age <= ?
+			AND price >= ?
+			AND price <= ?
+		LIMIT ${limit}
+	`;
+	const params = [
+		`%${name}%`,
+		`%${category}%`,
+		minPlayers,
+		maxPlayers,
+		minPlayTime,
+		maxPlayTime,
+		minAge,
+		maxAge,
+		minPrice,
+		maxPrice
+	];
+	const [results] = await connection.query(query, params);
 	return results;
 }
 
 export async function getBestSellers() {
 	let [results] = await connection.query(
-		"SELECT * FROM boardgames ORDER BY GAME_ORDERS_COUNT DESC LIMIT 5"
+		"SELECT * FROM boardgames ORDER BY GAME_ORDERS_COUNT(id) DESC LIMIT 5"
 	);
 	return results;
 }
@@ -165,6 +191,25 @@ export async function decreaseGameQuantity(boardgameID, quantity) {
 	);
 }
 // #endregion
+
+// #region Carts
+export async function getUserCart(userID) {
+
+	const [results] = await connection.query(
+		"SELECT * FROM carts WHERE userId = ?",
+		[userID]
+	);
+
+	let answer = {};
+	results.forEach((e) => {
+		answer[e.gameId] = e.quantity;
+	});
+	answer = Object.fromEntries(
+		Object.entries(answer).sort(([, a], [, b]) => b - a)
+	);
+
+	return answer;
+}
 
 export async function addItemToCart(userID, boardgameID, quantity) {
 	if (userID.length && boardgameID.length && quantity.length)
@@ -208,6 +253,10 @@ export async function addItemToCart(userID, boardgameID, quantity) {
 		return `Successfully added ${quantity} copie(s) of item '${boardgameID}' to '${userID}'s cart`;
 	}
 }
+// #endregion
+
+
+
 export async function getWishlistByUserID(userID) {
 	if (!userID.length)
 		throw new Error(`Invalid parameter(s): userID='${userID}'`);

@@ -1,9 +1,9 @@
 <template>
-  <div class="carousel" v-if="images.length > 0">
+  <div class="carousel" v-if="products.length > 0">
     <div class="carousel-slide"
-      :style="{ backgroundImage: `linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent), url(${images[currentIndex].imageUrl})` }">
+      :style="{ backgroundImage: `linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent), url(${products[currentIndex].imageUrl})` }">
       <div class="title-overlay">
-        {{ images[currentIndex].name }}
+        {{ products[currentIndex].name }}
       </div>
       <button class="nav left" @click="prevSlide">‹</button>
       <button class="nav right" @click="nextSlide">›</button>
@@ -15,7 +15,7 @@
 import {ref, onMounted, onBeforeUnmount} from 'vue';
 
 const props = defineProps({
-  images: {
+  products: {
     type: Array,
     required: true
   }
@@ -26,11 +26,11 @@ const hovered = ref(false);
 let interval = null;
 
 const nextSlide = () => {
-  currentIndex.value = (currentIndex.value + 1) % props.images.length;
+  currentIndex.value = (currentIndex.value + 1) % props.products.length;
 };
 
 const prevSlide = () => {
-  currentIndex.value = (currentIndex.value - 1 + props.images.length) % props.images.length;
+  currentIndex.value = (currentIndex.value - 1 + props.products.length) % props.products.length;
 };
 
 onMounted(() => {
