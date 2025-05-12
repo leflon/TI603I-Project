@@ -17,8 +17,7 @@ DROP TABLE IF EXISTS `Users`;
 CREATE TABLE IF NOT EXISTS `Users` (
     id CHAR(8) PRIMARY KEY,
     first_name VARCHAR(255),
-    surname VARCHAR(255),
-    username VARCHAR(32),
+    last_name VARCHAR(255),
     email VARCHAR(255),
     password_hash CHAR(60),
     is_admin BOOLEAN DEFAULT FALSE

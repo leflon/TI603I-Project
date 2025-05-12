@@ -1,9 +1,9 @@
-INSERT INTO `Users` (id, first_name, surname, username, email, password_hash, is_admin)
+INSERT INTO `Users` (id, first_name, last_name, email, password_hash, is_admin)
 VALUES 
-('U0000001', 'Alice', 'Smith', 'alice123', 'alice@example.com', 'hashed_password_1', FALSE),
-('U0000002', 'Bob', 'Jones', 'bobby', 'bob@example.com', 'hashed_password_2', TRUE),
-('U0000003', 'Charlie', 'Brown', 'charlie_b', 'charlie@example.com', 'hashed_password_3', FALSE),
-('U0000004', 'Dana', 'White', 'danaw', 'dana@example.com', 'hashed_password_4', FALSE);
+('U0000001', 'Alice', 'Smith', 'alice@example.com', 'hashed_password_1', FALSE),
+('U0000002', 'Bob', 'Jones', 'bob@example.com', 'hashed_password_2', TRUE),
+('U0000003', 'Charlie', 'Brown', 'charlie@example.com', 'hashed_password_3', FALSE),
+('U0000004', 'Dana', 'White', 'dana@example.com', 'hashed_password_4', FALSE);
 
 
 INSERT INTO `BoardGames` (

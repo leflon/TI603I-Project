@@ -19,10 +19,10 @@
 
 <script setup>
 import {ref, onMounted} from 'vue';
-
 import Gamecard from '../components/Gamecard.vue';
 import Carrousel from '../components/Carrousel.vue';
 import Gamecat from '../components/Gamecat.vue';
+import call from '@/lib/api';
 
 const bestsellers = ref([]);
 const lessThan = ref([]);
@@ -31,16 +31,13 @@ const categories = ref([]);
 onMounted(async () => {
   try {
     // Best sellers
-    let res = await fetch(`${import.meta.env.VITE_API_URL}/api/products/bestsellers`);
-    res = await res.json();
+    let res = await call(`/api/products/bestsellers`);
     bestsellers.value = res.bestsellers;
     // Categories
-    res = await fetch(`${import.meta.env.VITE_API_URL}/api/products/categories?limit=5`);
-    res = await res.json();
+    res = await call(`/api/products/categories?limit=5`);
     categories.value = res.categories;
     // Less-than X products
-    res = await fetch(`${import.meta.env.VITE_API_URL}/api/products/search?maxPrice=20&limit=3`, {credentials: 'include'});
-    res = await res.json();
+    res = await call(`/api/products/search?maxPrice=20&limit=3`);
     lessThan.value = res.products;
   } catch (error) {
     console.error('Error fetching products:', error);

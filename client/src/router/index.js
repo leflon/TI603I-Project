@@ -48,7 +48,7 @@ const router = createRouter({
       name: 'categories',
       component: () => import('../views/Categories.vue'),
       meta: {title: 'Categories'},
-    }
+    },
   ],
 });
 

@@ -1,11 +1,26 @@
 <script setup>
+import {store} from '@/lib/store';
+import router from '@/router';
+import {onMounted, reactive} from 'vue';
+
+
+const issues = reactive({
+    login: '',
+    register: ''
+});
+
+onMounted(() => {
+    if (store.user)
+        router.push('/');
+
+});
+
 
 const onSubmit = async (event) => {
     event.preventDefault();
     const form = event.target;
     const formData = new FormData(form);
     const json = Object.fromEntries(formData.entries());
-    console.log(json);
     const action = form.id;
     try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/${action}`, {
@@ -17,9 +32,12 @@ const onSubmit = async (event) => {
             },
             credentials: 'include'
         });
-        console.log(response);
         const data = await response.json();
-        console.log(data);
+        if (!data.success) {
+            issues[action] = data.message;
+        } else {
+            router.push('/');
+        }
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
     }
@@ -28,6 +46,7 @@ const onSubmit = async (event) => {
 <template>
     <form id='login' method='post' action='' @submit="onSubmit">
         <h2>Login</h2>
+        <div class='issue' v-if='issues.login'>{{ issues.login }}</div>
         <div>
             <label for="email">Email</label>
             <input type="email" id="email" name='email' placeholder='john.doe@efrei.net'>
@@ -40,6 +59,7 @@ const onSubmit = async (event) => {
     </form>
     <form id='register' method='post' action='' @submit="onSubmit">
         <h2>Register</h2>
+        <div class='issue' v-if='issues.register'>{{ issues.register }}</div>
         <div>
             <label for='firstname'>First name</label>
             <input type="text" id="firstname" name='firstname' placeholder='John'>
@@ -65,13 +85,21 @@ form {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    width: 300px;
     margin: 0 auto;
+    width: 500px;
 }
 
 form div {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+}
+
+.issue {
+    color: red;
+    margin-bottom: 10px;
+    background-color: #f8d7da;
+    padding: 10px;
+    border-radius: 6px;
 }
 </style>

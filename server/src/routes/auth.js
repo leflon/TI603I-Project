@@ -9,6 +9,13 @@ const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 const COOKIE_NAME = process.env.AUTH_COOKIE_NAME;
 
+router.get('/me', async (req, res) => {
+	if (!req.user) {
+		return res.status(401).json({message: 'Unauthorized', success: false});
+	}
+	const {id, first_name, last_name, email} = req.user;
+	res.json({user: {id, first_name: first_name, last_name, email}});
+});
 
 router.post('/login', async (req, res) => {
 	const {email, password} = req.body;
@@ -26,8 +33,12 @@ router.post('/register', async (req, res) => {
 	if (!email || !password || !firstname || !lastname) {
 		return res.status(400).json({message: 'Email, password, firstname, and lastname are required', success: false});
 	}
-	const id = await createUser(firstname, lastname, email, password);
-
+	let id;
+	try {
+		id = await createUser(firstname, lastname, email, password);
+	} catch (err) {
+		return res.status(400).json({message: err.message, success: false});
+	}
 
 	const token = jwt.sign({uid: id}, JWT_SECRET, {expiresIn: '30d'});
 	res.cookie(COOKIE_NAME, token, {httpOnly: true, sameSite: 'lax'});

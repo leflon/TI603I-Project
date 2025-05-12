@@ -15,7 +15,7 @@ const connection = await mysql.createConnection({
  * Creates a new user in the database.
  *
  * @param {string} first_name - The first name of the user.
- * @param {string} surname - The surname of the user.
+ * @param {string} last_name - The surname of the user.
  * @param {string} email - The email address of the user.
  * @param {string} password - The plaintext password of the user.
  * @throws {Error} If the provided email is invalid.
@@ -24,7 +24,7 @@ const connection = await mysql.createConnection({
  * @throws {Error} If any of the first_name, surname, or username is empty.
  * @returns {Promise<string>} The ID of the newly created user.
  */
-export async function createUser(first_name, surname, email, password) {
+export async function createUser(first_name, last_name, email, password) {
 	if (!isValidEmail(email))
 		throw new Error("Provided email is invalid");
 
@@ -39,10 +39,9 @@ export async function createUser(first_name, surname, email, password) {
 		throw new Error('Provided password does not match requirements.');
 
 	const password_hash = hashSync(password, 10);
-	const username = email.split('@')[0];
 	await connection.query(
-		"INSERT INTO Users VALUES (ID(), ?, ?, ?, ?, ?, 0)",
-		[first_name, surname, username, email, password_hash]
+		"INSERT INTO Users VALUES (ID(), ?, ?, ?, ?, 0)",
+		[first_name, last_name, email, password_hash]
 	);
 	results = await connection.query(
 		"SELECT id FROM Users WHERE email = ?",
@@ -65,7 +64,6 @@ export async function checkUserCredentials(email, password) {
 		"SELECT id, password_hash FROM Users WHERE email = ?",
 		[email]
 	);
-	console.log(results);
 	if (!results.length) return null;
 	if (results.length > 1) return null;
 	return compareSync(password, results[0].password_hash) ? results[0].id : null;
