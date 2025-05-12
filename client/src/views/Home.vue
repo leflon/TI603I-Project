@@ -39,7 +39,7 @@ onMounted(async () => {
     res = await res.json();
     categories.value = res.categories;
     // Less-than X products
-    res = await fetch(`${import.meta.env.VITE_API_URL}/api/products/search?maxPrice=20&limit=3`);
+    res = await fetch(`${import.meta.env.VITE_API_URL}/api/products/search?maxPrice=20&limit=3`, {credentials: 'include'});
     res = await res.json();
     lessThan.value = res.products;
   } catch (error) {

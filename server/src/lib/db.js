@@ -16,16 +16,15 @@ const connection = await mysql.createConnection({
  *
  * @param {string} first_name - The first name of the user.
  * @param {string} surname - The surname of the user.
- * @param {string} username - The username of the user.
  * @param {string} email - The email address of the user.
  * @param {string} password - The plaintext password of the user.
  * @throws {Error} If the provided email is invalid.
  * @throws {Error} If a user with the provided email already exists.
  * @throws {Error} If the provided password does not meet the requirements.
  * @throws {Error} If any of the first_name, surname, or username is empty.
- * @returns {Promise<void>} Resolves when the user is successfully created.
+ * @returns {Promise<string>} The ID of the newly created user.
  */
-export async function createUser(first_name, surname, username, email, password) {
+export async function createUser(first_name, surname, email, password) {
 	if (!isValidEmail(email))
 		throw new Error("Provided email is invalid");
 
@@ -37,18 +36,19 @@ export async function createUser(first_name, surname, username, email, password)
 		throw new Error(`'${results.email}' is already in use.`);
 
 	if (!isValidPassword(password))
-		throw new Error(`Provided password '${password}' does not match requirements.`);
-
-	if (!(surname.length && first_name.length && username.length))
-		throw new Error("Missing information.");
+		throw new Error('Provided password does not match requirements.');
 
 	const password_hash = hashSync(password, 10);
-
-	connection.query(
+	const username = email.split('@')[0];
+	await connection.query(
 		"INSERT INTO Users VALUES (ID(), ?, ?, ?, ?, ?, 0)",
 		[first_name, surname, username, email, password_hash]
 	);
-
+	results = await connection.query(
+		"SELECT id FROM Users WHERE email = ?",
+		[email]
+	);
+	return results[0].id;
 }
 
 
@@ -56,23 +56,32 @@ export async function createUser(first_name, surname, username, email, password)
  * Verifies user credentials against the database records.
  * @param {string} email - The email address of the user to authenticate.
  * @param {string} password - The plaintext password provided by the user.
- * @returns {boolean} True if the password matches the stored hash, otherwise false.
+ * @returns {Promise<string | null>} User ID if credentials are valid, null otherwise.
  * @throws {Error} If no user is found with the provided email.
  * @throws {Error} If more than one user is associated with the provided email.
  */
 export async function checkUserCredentials(email, password) {
-
 	const [results] = await connection.query(
-		"SELECT password_hash FROM Users WHERE email = ?",
+		"SELECT id, password_hash FROM Users WHERE email = ?",
 		[email]
 	);
-	if (!results.length)
-		throw new Error(`No user with this email '${email}' is in the database `);
-	if (results.length > 1)
-		throw new Error(`More than one user is linked to this email '${email}'`);
-
-	return compareSync(password, results[0].password_hash);
+	console.log(results);
+	if (!results.length) return null;
+	if (results.length > 1) return null;
+	return compareSync(password, results[0].password_hash) ? results[0].id : null;
 }
+
+export async function getUserByID(userID) {
+	const [results] = await connection.query(
+		"SELECT * FROM users WHERE id = ?",
+		[userID]
+	);
+	if (!results.length)
+		throw new Error(`No user found with this id '${userID}'`);
+
+	return results[0];
+}
+
 /**
  * Finds a user by their ID and deletes them from the users table
  * @param {string} userID

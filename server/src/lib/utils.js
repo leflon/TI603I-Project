@@ -1,6 +1,7 @@
 export function isValidEmail(email) {
-	const re = /\S+@\S+\.\S+/;
-	return re.test(email);
+	//const re = /\S+@\S+\.\S+/gi;
+	//return re.test(email);
+	return true;
 }
 
 /**

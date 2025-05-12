@@ -1,24 +1,19 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
+import {getUserByID} from '../lib/db';
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
 	const cookieName = process.env.AUTH_COOKIE_NAME;
 	const token = req.cookies && req.cookies[cookieName];
 	if (!token)
 		return next();
-
 	try {
 		const decoded = jwt.decode(token);
 		const uid = decoded && decoded.uid;
 		if (!uid)
 			return next();
-		// Dummy user data (replace with DB call later)
-		const dummyUser = {
-			id: uid,
-			name: 'Test User',
-			email: 'test@example.com'
-		};
 
-		req.user = dummyUser;
+		const user = await getUserByID(uid);
+		req.user = user;
 	} catch (err) {
 		// If token is invalid, clear cookies and proceed
 		res.clearCookie(cookieName);
@@ -26,4 +21,4 @@ const authMiddleware = (req, res, next) => {
 	next();
 };
 
-module.exports = authMiddleware;
+export default authMiddleware;
