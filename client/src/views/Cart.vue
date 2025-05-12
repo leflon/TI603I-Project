@@ -38,7 +38,11 @@ const onRemove = async (id) => {
             <div class='cart'>
                 <div class='cart-item' v-for='(item, id) in store.cart' :key='id' v-if='Object.keys(store.cart).length'>
                     <img :src='item.imageUrl' alt='Product Image' />
-                    <h2>{{ item.name }}</h2>
+                    <h2>
+                        <RouterLink :to='`/product/${id}`'>
+                            {{ item.name }}
+                        </RouterLink>
+                    </h2>
                     <p>x{{ item.quantity }}</p>
                     <p class='price'>€{{ (item.price * item.quantity).toFixed(2) }}</p>
                     <button @click='() => onRemove(id)'>Remove</button>

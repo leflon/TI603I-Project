@@ -5,9 +5,9 @@ const props = defineProps({
 });
 </script>
 <template>
-    <div class="gamecat">
+    <RouterLink :to='`/search?category=${name}`' class="gamecat">
         <h2>{{ props.name || 'Category' }}</h2>
-    </div>
+    </RouterLink>
 </template>
 
 <style scoped>

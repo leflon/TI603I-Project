@@ -1,8 +1,12 @@
 <script setup>
-import {RouterLink, RouterView} from 'vue-router';
+import {RouterLink, RouterView, useRouter} from 'vue-router';
 import {store} from '@/lib/store';
 import call from '@/lib/api';
-import {computed} from 'vue';
+import {computed, ref} from 'vue';
+
+
+const searchQuery = ref('');
+const router = useRouter();
 
 const itemsInCart = computed(() => {
   let count = 0;
@@ -15,6 +19,15 @@ const itemsInCart = computed(() => {
 const logout = async () => {
   await call('/api/auth/logout', {method: 'POST'});
   store.user = null;
+  router.push('/login');
+};
+
+
+const search = async () => {
+  const query = searchQuery.value;
+  if (query) {
+    router.push({name: 'search', query: {name: query}});
+  }
 };
 </script>
 
@@ -24,16 +37,16 @@ const logout = async () => {
       <RouterLink to="/">MIST</RouterLink>
       <RouterLink to="/categories">Categories</RouterLink>
       <RouterLink to="/support">About</RouterLink>
-      <input type="text" placeholder="Search" class="search" />
+      <input type="text" placeholder="Search" class="search" v-model.trim='searchQuery' @keydown.enter='search' />
     </div>
     <div class="nav-right">
       <RouterLink to="/cart">
-        <div class='cart-size'>{{ itemsInCart }}</div>
+        <div class='cart-size' v-if='itemsInCart > 0'>{{ itemsInCart }}</div>
         <i class="fa-solid fa-cart-shopping"></i>
       </RouterLink>
       <RouterLink to="/account"><i class="fa-solid fa-circle-user"></i></RouterLink>
       <a href='#' @click='logout' v-if='store.user'>Log out ({{ store.user.first_name + ' ' + store.user.last_name
-      }})</a>
+        }})</a>
       <RouterLink to="/login" v-else>Log in</RouterLink>
     </div>
   </nav>

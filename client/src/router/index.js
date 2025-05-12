@@ -44,6 +44,12 @@ const router = createRouter({
       meta: {title: 'Product'},
     },
     {
+      path: '/search',
+      name: 'search',
+      component: () => import('../views/Search.vue'),
+      meta: {title: 'Search'}
+    },
+    {
       path: '/categories',
       name: 'categories',
       component: () => import('../views/Categories.vue'),

@@ -24,6 +24,7 @@ const onAdd = async () => {
             } else {
                 store.cart[id] = {quantity: quantity.value, ...product.value};
             }
+            alert('Added to cart!');
         } else {
             alert(res.message);
         }
@@ -61,6 +62,10 @@ const onAdd = async () => {
         </div>
         <h2>Product details</h2>
         <table>
+            <tr>
+                <td>Category</td>
+                <td>{{ product.category }}</td>
+            </tr>
             <tr>
                 <td>Age</td>
                 <td>{{ product.min_age }} - {{ product.max_age }}</td>

@@ -20,7 +20,7 @@ router.get('/categories', async (req, res) => {
   let {limit = 10} = req.query;
   limit = parseInt(limit);
   const categories = await getAllCategories(limit);
-  res.json({categories});
+  res.json({success: true, categories});
 });
 
 /**
