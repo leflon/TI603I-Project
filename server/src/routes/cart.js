@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {addItemToCart, getUserCart} from '../lib/db';
+import {addItemToCart, getUserCart, removeItemFromCart} from '../lib/db';
 
 const router = Router();
 
@@ -27,8 +27,17 @@ router.post('/add', async (req, res) => {
 	}
 });
 
-router.post('/remove', (req, res) => {
-
+router.post('/remove', async (req, res) => {
+	const {gameId} = req.body;
+	if (!gameId) {
+		return res.status(400).json({success: false, message: 'Game Id is required'});
+	}
+	try {
+		await removeItemFromCart(req.user.id, gameId);
+		res.json({success: true});
+	} catch (err) {
+		return res.status(400).json({success: false, message: err.message});
+	}
 });
 
 router.get('/get', async (req, res) => {

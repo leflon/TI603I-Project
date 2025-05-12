@@ -201,13 +201,13 @@ export async function decreaseGameQuantity(boardgameID, quantity) {
 // #region Carts
 export async function getUserCart(userID) {
 	const [results] = await connection.query(
-		"SELECT * FROM carts WHERE userId = ?",
+		"SELECT c.quantity, g.* FROM carts c JOIN BoardGames g ON c.gameId = g.id WHERE userId = ?",
 		[userID]
 	);
 
 	let answer = {};
 	results.forEach((e) => {
-		answer[e.gameId] = e.quantity;
+		answer[e.id] = e;
 	});
 
 	return answer;
@@ -246,6 +246,25 @@ export async function addItemToCart(userID, gameId, quantity) {
 	console.log(`Added ${quantity} of '${gameId}' to user '${userID}' cart (Remaining stock: ${stock - quantity})`);
 	await decreaseGameQuantity(gameId, quantity);
 }
+
+export async function removeItemFromCart(userId, gameId) {
+	let [rows] = await connection.query("SELECT quantity from carts WHERE userId = ? AND gameId = ?", [userId, gameId]);
+	if (!rows.length)
+		throw new Error(`Product not found in user's cart`);
+
+	const quantity = rows[0].quantity;
+
+	let [results] = await connection.query(
+		"DELETE FROM carts WHERE gameId = ? AND userId = ?",
+		[gameId, userId]
+	);
+
+	await decreaseGameQuantity(gameId, -quantity);
+
+	console.log(`Removed '${gameId}' from user '${userId}' cart (Added back ${quantity} to stock)`);
+}
+
+
 // #endregion
 
 

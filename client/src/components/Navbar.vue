@@ -6,8 +6,8 @@ import {computed} from 'vue';
 
 const itemsInCart = computed(() => {
   let count = 0;
-  for (const q of Object.values(store.cart)) {
-    count += q;
+  for (const item of Object.values(store.cart)) {
+    count += item.quantity;
   }
   return count;
 });
@@ -33,7 +33,7 @@ const logout = async () => {
       </RouterLink>
       <RouterLink to="/account"><i class="fa-solid fa-circle-user"></i></RouterLink>
       <a href='#' @click='logout' v-if='store.user'>Log out ({{ store.user.first_name + ' ' + store.user.last_name
-        }})</a>
+      }})</a>
       <RouterLink to="/login" v-else>Log in</RouterLink>
     </div>
   </nav>

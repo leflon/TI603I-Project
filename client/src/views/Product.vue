@@ -19,7 +19,11 @@ const onAdd = async () => {
         const res = await call(`/api/cart/add`, {method: 'POST', body: {gameId: id, quantity: quantity.value}});
         console.log(res);
         if (res.success) {
-            store.cart[id] = store.cart[id] ? store.cart[id] + quantity.value : quantity.value;
+            if (store.cart[id]) {
+                store.cart[id].quantity = store.cart[id].quantity + quantity.value;
+            } else {
+                store.cart[id] = {quantity: quantity.value, ...product.value};
+            }
         } else {
             alert(res.message);
         }
