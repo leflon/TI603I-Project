@@ -33,14 +33,9 @@ CREATE DATABASE <your_db_name>
 
 Then, run the scripts found in `database/`
 ```bash
-mysql -u <user> -p <your_db_name> < schemas.sql
-mysql -u <user> -p <your_db_name> < populate.sql
-mysql -u <user> -p <your_db_name> < functions.sql
-mysql -u <user> -p <your_db_name> < indexes.sql
-mysql -u <user> -p <your_db_name> < views.sql
-mysql -u <user> -p <your_db_name> < triggers.sql
-```
+mysql -u <user> -p <your_db_name> < init.sql
 
+```
 
 **Populate env variables**
 
