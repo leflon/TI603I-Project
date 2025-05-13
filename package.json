@@ -3,7 +3,7 @@
     "client:dev": "cd client && bun run dev",
     "server:dev": "cd server && bun run dev",
     "dev": "concurrently \"bun run client:dev\" \"bun run server:dev\" --names \"FRONTEND,BACKEND\" -c \"bgBlue.bold,bgYellow.bold\"",
-    "install": "bun install && cd server && bun install && cd ../client && bun install"
+    "install-all": "bun install && cd server && bun install && cd ../client && bun install"
   },
   "dependencies": {
     "concurrently": "^9.1.0"

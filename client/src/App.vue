@@ -7,14 +7,7 @@ import {onMounted} from 'vue';
 import call from './lib/api';
 
 onMounted(async () => {
-  const {user} = await call('/api/auth/me');
-  if (user) {
-    store.user = user;
-  }
-  const {cart} = await call('/api/cart/get');
-  if (cart) {
-    store.cart = cart;
-  }
+ 
 });
 </script>
 
