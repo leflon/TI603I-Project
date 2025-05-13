@@ -1,10 +1,6 @@
 import {createRouter, createWebHistory} from 'vue-router';
 import HomeView from '../views/Home.vue';
-<<<<<<< HEAD
-import {store} from '../lib/store';
-=======
 import {store} from '@/lib/store';
->>>>>>> origin/master
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -82,15 +78,10 @@ router.beforeEach((to, from) => {
   } else {
     document.title = 'Mist';
   }
-<<<<<<< HEAD
 
   // Redirect to login if trying to access a protected route and not logged in
   if (!isLoggedIn && protectedRoutes.includes(to.name)) {
     return {name: 'login', query: {redirect: to.fullPath}};
-=======
-  if (!isLoggedIn && to.name && protectedRoutes.includes(to.name)) {
-    return '/login?redirect=/' + to.name ;
->>>>>>> origin/master
   }
 
   // Redirect to home if trying to access an admin route and not an admin

@@ -62,16 +62,16 @@ CREATE TABLE IF NOT EXISTS `Reviews` (
     description TEXT,
     grade TINYINT UNSIGNED NOT NULL,
     createdAt DATETIME,
-    FOREIGN KEY (`userId`) REFERENCES `Users` (`id`),
-    FOREIGN KEY (`gameId`) REFERENCES `BoardGames` (`id`)
+    FOREIGN KEY (`userId`) REFERENCES `Users` (`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`gameId`) REFERENCES `BoardGames` (`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `Wishlists` (
     gameId CHAR(8) NOT NULL,
     userId CHAR(8) NOT NULL,
     PRIMARY KEY (gameId, userId),
-    FOREIGN KEY (`gameId`) REFERENCES `BoardGames` (`id`),
-    FOREIGN KEY (`userId`) REFERENCES `Users` (`id`)
+    FOREIGN KEY (`gameId`) REFERENCES `BoardGames` (`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`userId`) REFERENCES `Users` (`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `Carts` (
@@ -79,8 +79,8 @@ CREATE TABLE IF NOT EXISTS `Carts` (
     userId CHAR(8),
     quantity SMALLINT UNSIGNED,
     PRIMARY KEY (gameId, userId),
-    FOREIGN KEY (`gameId`) REFERENCES `BoardGames` (`id`),
-    FOREIGN KEY (`userId`) REFERENCES `Users` (`id`)
+    FOREIGN KEY (`gameId`) REFERENCES `BoardGames` (`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`userId`) REFERENCES `Users` (`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `Orders` (
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `Orders` (
     totalPrice DECIMAL(10, 2),
     userId CHAR(8) NOT NULL,
     createdAt DATETIME,
-    FOREIGN KEY (`userId`) REFERENCES `Users` (`id`)
+    FOREIGN KEY (`userId`) REFERENCES `Users` (`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `OrderItems` (
@@ -97,8 +97,8 @@ CREATE TABLE IF NOT EXISTS `OrderItems` (
     gameId CHAR(8),
     quantity SMALLINT UNSIGNED NOT NULL,
     PRIMARY KEY (orderId, gameId),
-    FOREIGN KEY (`orderId`) REFERENCES `Orders` (`id`),
-    FOREIGN KEY (`gameId`) REFERENCES `BoardGames` (`id`)
+    FOREIGN KEY (`orderId`) REFERENCES `Orders` (`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`gameId`) REFERENCES `BoardGames` (`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `Loans` (
@@ -107,5 +107,5 @@ CREATE TABLE IF NOT EXISTS `Loans` (
     actual_return_date DATE,
     penalty DECIMAL(10, 1) UNSIGNED,
     orderId CHAR(8) NOT NULL,
-    FOREIGN KEY (`orderId`) REFERENCES `Orders` (`id`)
+    FOREIGN KEY (`orderId`) REFERENCES `Orders` (`id`) ON DELETE CASCADE
 );

@@ -13,8 +13,8 @@ router.get('/me', async (req, res) => {
 	if (!req.user) {
 		return res.status(401).json({message: 'Unauthorized', success: false});
 	}
-	const {id, first_name, last_name, email} = req.user;
-	res.json({user: {id, first_name: first_name, last_name, email}});
+	const {id, first_name, last_name, email, is_admin} = req.user;
+	res.json({user: {id, first_name, last_name, email, is_admin}});
 });
 
 router.post('/login', async (req, res) => {
