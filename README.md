@@ -15,8 +15,8 @@ This project was made using `Bun`. To ensure best performances and compatibility
 If you really do not wish to install bun, you can use `node` & `npm` to run the project. (Note that in this case, the scripts will have to be modified accordingly)
 
 ```bash
-bun install
-bun run dev
+# Run this command at the project root to install client, server, and workspace dependencies.  
+bun install-all
 ```
 
 **Initialize Database**
