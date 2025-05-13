@@ -1,5 +1,6 @@
   <template>
-    <h1>Thanks for using our website!</h1>
+    <div>
+          <h1>Thanks for using our website!</h1>
     <img src="/img/banner.jpg" alt="Banner" class="banner-image" />
     <div id ="info">
       <section class="info-elt">
@@ -26,8 +27,6 @@
       </section>
       
     </div>
-
-    
     <section>
       <h2>Contact Us</h2>
       <p>
@@ -35,7 +34,7 @@
         Email: <a href="mailto:support@mistshop.com">support@mistshop.com</a>
       </p>
     </section>
-
+    </div>
   </template>
 
   <style>

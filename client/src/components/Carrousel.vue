@@ -1,15 +1,16 @@
 <template>
-  <div class="carousel" v-if="products.length > 0" @click='navigate'>
-    <div class="carousel-slide"
-      :style="{ backgroundImage: `linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent), url(${products[currentIndex].imageUrl})` }">
+  <div class="carousel" v-if="products.length > 0">
+    <div class="carousel-slide" @click="navigate" @mouseenter="hovered = true" @mouseleave="hovered = false">
+      <img :src="products[currentIndex].imageUrl" alt="carousel image" />
       <div class="title-overlay">
         {{ products[currentIndex].name }}
       </div>
-      <button class="nav left" @click="prevSlide">‹</button>
-      <button class="nav right" @click="nextSlide">›</button>
+      <button class="nav left" @click.stop="prevSlide">‹</button>
+      <button class="nav right" @click.stop="nextSlide">›</button>
     </div>
   </div>
 </template>
+
 
 <script setup>
 import {ref, onMounted, onBeforeUnmount} from 'vue';
@@ -55,24 +56,29 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.carousel {
-  width: 800px;
-  aspect-ratio: 16 / 9;
-  max-width: 100%;
+.carousel-slide {
+  width: 400px;
+  position: relative;
   overflow: hidden;
-  border-radius: 15px;
   position: relative;
   margin: 20px auto;
   cursor: pointer;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
 }
 
-.carousel-slide {
+.carousel-slide img {
   width: 100%;
   height: 100%;
-  background-size: cover;
+  object-fit: contain; 
   background-position: center;
-  transition: background-image 0.6s ease-in-out;
-  position: relative;
+  display: block;
+  transition: opacity 0.6s ease-in-out;
+  border-radius: 15px;
+
+}
+.carousel-slide {
+  width: 100%;
 }
 
 .nav {

@@ -1,5 +1,10 @@
 <template>
-  <RouterLink :to='`/product/${props.data.id}`' class="gamecard" :style="{ backgroundImage: props.data.imageUrl }">
+  
+<RouterLink
+  :to="`/product/${props.data.id}`"
+  class="gamecard"
+  :style="{ '--bg-url': `url(${props.data.imageUrl})` }"
+>
     <div class="bottom">
       <h2>{{ props.data.name }}</h2>
       <div class="labels">
@@ -11,9 +16,9 @@
 </template>
 
 <script setup>
-const props = defineProps({
-  data: Object,
-});
+  const props = defineProps({
+    data: Object,
+  });
 </script>
 
 <style scoped>
@@ -31,17 +36,19 @@ const props = defineProps({
   transition: all .5s ease;
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
   margin: 20px 0;
+  background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent), var(--bg-url);
+  --bg-url: none;
 }
 
 .gamecard:hover {
   transform: scale(1.04);
-  background-image: linear-gradient(to top, rgba(0, 8, 19, 0.895), transparent);
+  background-image: linear-gradient(to top, rgba(255, 255, 255, 0.7), transparent), var(--bg-url);
   box-shadow: rgba(0, 0, 0, 0.211) 0px 5px 15px;
 }
 
 .gamecard:hover h2,
 .gamecard:hover h3 {
-  color: var(--color-secondary);
+  color: var(--color-dark);
   transition: .2s ease;
 }
 
@@ -51,17 +58,18 @@ const props = defineProps({
   transition: .2s ease;
 }
 
+
 h2 {
   font-size: 25px;
   font-weight: 900;
   position: absolute;
   bottom: 21px;
   left: 12px;
-  color: var(--color-dark);
+  color: var(--color-div);
 }
 
 h3 {
-  color: var(--color-dark);
+  color: var(--color-div);
 }
 
 .labels {
@@ -94,3 +102,5 @@ span:hover {
   font-size: 16px;
 }
 </style>
+
+

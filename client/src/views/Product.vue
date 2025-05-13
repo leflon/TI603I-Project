@@ -41,7 +41,7 @@ const onAdd = async () => {
     </div>
     <div v-else>
         <div class='heading'>
-            <img :src='product.imgageUrl' alt='Product Image' />
+            <img :src='product.imageUrl' alt='Product Image' />
             <div class='heading-text'>
                 <h1>{{ product.name }}</h1>
                 <p>{{ product.description }}</p>
@@ -133,6 +133,12 @@ const onAdd = async () => {
     aspect-ratio: 16 / 9;
     background-color: pink;
     border-radius: 10px;
+    box-shadow: #82002b26 0px 5px 15px;
+    transition: all .5s ease;
+
+}
+.heading img:hover {
+    transform: scale(1.05);
 }
 
 h1 {
@@ -170,6 +176,10 @@ button {
     &:hover {
         background-color: var(--color-dark);
     }
+}
+
+h1, h2, .price{
+    color: var(--color-primary);
 }
 
 
