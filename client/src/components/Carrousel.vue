@@ -58,6 +58,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .carousel-slide {
   width: 400px;
+  max-height: 500px;
   position: relative;
   overflow: hidden;
   position: relative;
