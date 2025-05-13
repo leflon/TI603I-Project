@@ -7,54 +7,54 @@ VALUES
 
 
 INSERT INTO `BoardGames` (
-    id, name, price, description, yearPublished, avg_grade, min_players, max_players, min_play_time, max_play_time,
+    id, name, price, imageUrl, description, yearPublished, avg_grade, min_players, max_players, min_play_time, max_play_time,
     min_age, max_age, quantity_available, quantity_lent, category,
     family, implementations, designers, artists, publishers, mechanics, expansions
 )
 VALUES
-('G0000001', 'Carcassonne', 29.99, 'Tile-placement game where players build medieval landscapes.', 2000, NULL, 2, 5, 35, 45, 7, 99, 8, 2, 'Strategy',
+('G0000001', 'Carcassonne', 29.99, 'https://i5.walmartimages.com/seo/Carcassonne-Family-Strategy-Board-Game-for-Ages-7-and-up-from-Asmodee_308f261a-ba31-4b05-99a4-08db9412d050.aea96c58e0bb57d14e8cb3328f595406.jpeg', 'Tile-placement game where players build medieval landscapes.', 2000, NULL, 2, 5, 35, 45, 7, 99, 8, 2, 'Strategy',
     '["Carcassonne Series"]', '["Carcassonne Big Box"]', '["Klaus-Jürgen Wrede"]', '["Doris Matthäus"]', '["Hans im Glück"]', '["Tile Placement"]', '["Inns & Cathedrals"]'),
 
-('G0000002', 'Gloomhaven', 119.99, 'Epic campaign game with tactical combat and evolving narrative.', 2017, NULL, 1, 4, 90, 150, 14, 99, 3, 1, 'Adventure',
+('G0000002', 'Gloomhaven', 119.99, 'https://static.thcdn.com/images/large/original//productimg/1600/1600/12270281-1984747859045883.jpg', 'Epic campaign game with tactical combat and evolving narrative.', 2017, NULL, 1, 4, 90, 150, 14, 99, 3, 1, 'Adventure',
     '["Gloomhaven Universe"]', '["Gloomhaven: Jaws of the Lion"]', '["Isaac Childres"]', '["Alexandr Elichev"]', '["Cephalofair Games"]', '["Hand Management", "Cooperative Play"]', '["Forgotten Circles"]'),
 
-('G0000003', 'Ticket to Ride', 44.99, 'Collect train cards to claim railway routes across North America.', 2004, NULL, 2, 5, 30, 60, 8, 99, 9, 0, 'Family',
+('G0000003', 'Ticket to Ride', 44.99, 'https://m.media-amazon.com/images/I/91YNJM4oyhL.jpg', 'Collect train cards to claim railway routes across North America.', 2004, NULL, 2, 5, 30, 60, 8, 99, 9, 0, 'Family',
     '["Ticket to Ride Series"]', '["Ticket to Ride: Europe"]', '["Alan R. Moon"]', '["Julien Delval"]', '["Days of Wonder"]', '["Set Collection", "Route Building"]', '["Ticket to Ride: 1910"]'),
 
-('G0000004', '7 Wonders', 34.99, 'Draft cards to build a civilization and wonders.', 2010, NULL, 2, 7, 30, 30, 10, 99, 6, 1, 'Civilization',
+('G0000004', '7 Wonders', 34.99, 'https://cdn.svc.asmodee.net/production-rprod/storage/games/7-wonders/sev-box-3d-1592411287XEcT9.png', 'Draft cards to build a civilization and wonders.', 2010, NULL, 2, 7, 30, 30, 10, 99, 6, 1, 'Civilization',
     '["7 Wonders Series"]', '["7 Wonders: Duel"]', '["Antoine Bauza"]', '["Miguel Coimbra"]', '["Repos Production"]', '["Card Drafting"]', '["7 Wonders: Leaders"]'),
 
-('G0000005', 'Azul', 29.99, 'Pattern-building game inspired by Portuguese tiles.', 2017, NULL, 2, 4, 30, 45, 8, 99, 5, 0, 'Abstract',
+('G0000005', 'Azul', 29.99, 'https://hobbyshop.lt/wp-content/uploads/2023/04/azul-sokolado-meistras.jpg', 'Pattern-building game inspired by Portuguese tiles.', 2017, NULL, 2, 4, 30, 45, 8, 99, 5, 0, 'Abstract',
     '["Azul Series"]', '["Azul: Stained Glass of Sintra"]', '["Michael Kiesling"]', '["Chris Quilliams"]', '["Plan B Games"]', '["Pattern Building"]', '["Azul: Summer Pavilion"]'),
 
-('G0000006', 'Dominion', 39.99, 'Deck-building game where you acquire cards to gain victory points.', 2008, NULL, 2, 4, 30, 45, 13, 99, 4, 1, 'Card Game',
+('G0000006', 'Dominion', 39.99, 'https://m.media-amazon.com/images/I/71yhfK38GCL.jpg', 'Deck-building game where you acquire cards to gain victory points.', 2008, NULL, 2, 4, 30, 45, 13, 99, 4, 1, 'Card Game',
     '["Dominion Series"]', '["Dominion: Intrigue"]', '["Donald X. Vaccarino"]', '["Various"]', '["Rio Grande Games"]', '["Deck Building"]', '["Seaside", "Prosperity"]'),
 
-('G0000007', 'Exploding Kittens', 19.99, 'Fast-paced card game about kittens and explosions.', 2015, NULL, 2, 5, 10, 15, 7, 99, 12, 1, 'Party',
+('G0000007', 'Exploding Kittens', 19.99, 'https://m.media-amazon.com/images/I/510RZPoe1BS.jpg', 'Fast-paced card game about kittens and explosions.', 2015, NULL, 2, 5, 10, 15, 7, 99, 12, 1, 'Party',
     '["Exploding Kittens Series"]', '["NSFW Edition"]', '["Elan Lee", "Matthew Inman"]', '["Matthew Inman"]', '["Exploding Kittens LLC"]', '["Push Your Luck"]', '["Barking Kittens"]'),
 
-('G0000008', 'Root', 59.99, 'Asymmetric war game in a woodland setting.', 2018, NULL, 2, 4, 60, 90, 10, 99, 4, 1, 'Wargame',
+('G0000008', 'Root', 59.99, 'https://m.media-amazon.com/images/I/91ezFG-gQ6L.jpg', 'Asymmetric war game in a woodland setting.', 2018, NULL, 2, 4, 60, 90, 10, 99, 4, 1, 'Wargame',
     '["Root Series"]', '["Root: The Riverfolk Expansion"]', '["Cole Wehrle"]', '["Kyle Ferrin"]', '["Leder Games"]', '["Area Control", "Asymmetric"]', '["Underworld Expansion"]'),
 
-('G0000009', 'Wow', 7.99, 'Cards game where you select the best course of action.', 2025, NULL, 3, 6, 30, 120, 18, 99, 3, 0, 'Party',
+('G0000009', 'Wow', 7.99, 'https://cdn3.philibertnet.com/515976-thickbox_default/world-of-warcraft-wrath-of-the-lich-king-a-pandemic-system-board-game.jpg', 'Cards game where you select the best course of action.', 2025, NULL, 3, 6, 30, 120, 18, 99, 3, 0, 'Party',
     '["Coline"]', '["Coline: Around a Glass"]', '["Olivier S. Fondas"]', '["Mom Colin"]', '["Mallemort"]', '["Card Drafting"]', '["Rave Expansion"]'),
 
-('G0000010', 'Codenames', 24.99, 'Spy-themed word game where players guess secret words.', 2015, NULL, 2, 8, 15, 30, 14, 99, 7, 1, 'Party',
+('G0000010', 'Codenames', 24.99, 'https://childsplaytoysandbooks.com/cdn/shop/products/codenames2.jpg?v=1571323523', 'Spy-themed word game where players guess secret words.', 2015, NULL, 2, 8, 15, 30, 14, 99, 7, 1, 'Party',
     '["Codenames Series"]', '["Codenames: Duet"]', '["Vlaada Chvátil"]', '["Tomáš Kučerovský"]', '["Czech Games Edition"]', '["Word Game", "Team-Based"]', '["Codenames: Pictures"]'),
 
-('G0000011', 'Wingspan', 54.99, 'Engine-building game with birds and unique powers.', 2019, NULL, 1, 5, 40, 70, 10, 99, 6, 0, 'Strategy',
+('G0000011', 'Wingspan', 54.99, 'https://stonemaiergames.com/wp-content/uploads/2023/11/3d-wingspan.png', 'Engine-building game with birds and unique powers.', 2019, NULL, 1, 5, 40, 70, 10, 99, 6, 0, 'Strategy',
     '["Wingspan Series"]', '["Wingspan: Oceania Expansion"]', '["Elizabeth Hargrave"]', '["Natalia Rojas", "Ana Maria Martinez"]', '["Stonemaier Games"]', '["Engine Building"]', '["Wingspan: European Expansion"]'),
 
-('G0000012', 'Pandemic', 39.99, 'Co-op game to stop global disease outbreaks.', 2008, NULL, 2, 4, 45, 60, 8, 99, 10, 2, 'Cooperative',
+('G0000012', 'Pandemic', 39.99, 'https://cdn3.philibertnet.com/523831-thickbox_default/pandemie.jpg', 'Co-op game to stop global disease outbreaks.', 2008, NULL, 2, 4, 45, 60, 8, 99, 10, 2, 'Cooperative',
     '["Pandemic Series"]', '["Pandemic: Legacy Season 1"]', '["Matt Leacock"]', '["Josh Cappel"]', '["Z-Man Games"]', '["Cooperative Play"]', '["On the Brink"]'),
 
-('G0000013', 'Catan', 49.99, 'Trade and build settlements on a modular board.', 1995,NULL, 3, 4, 60, 120, 10, 99, 11, 2, 'Strategy',
+('G0000013', 'Catan', 49.99, 'https://imusic.b-cdn.net/images/item/original/712/0029877030712.jpg?esdevium-2023-catan-board-game-2015-edition-game&class=scaled&v=1616862937', 'Trade and build settlements on a modular board.', 1995,NULL, 3, 4, 60, 120, 10, 99, 11, 2, 'Strategy',
     '["Catan Series"]', '["Catan: Seafarers"]', '["Klaus Teuber"]', '["Volkan Baga"]', '["Kosmos", "Catan Studio"]', '["Trading", "Dice Rolling"]', '["Catan: Cities & Knights"]'),
 
-('G0000014', 'Scythe', 89.99, 'Alternate-history engine builder with combat and farming.', 2016, NULL, 1, 5, 90, 115, 14, 99, 5, 1, 'Wargame',
+('G0000014', 'Scythe', 89.99, 'https://www.cogstoysandgames.ie/cdn/shop/products/Scythe-Board-Game.jpg?v=1683527925', 'Alternate-history engine builder with combat and farming.', 2016, NULL, 1, 5, 90, 115, 14, 99, 5, 1, 'Wargame',
     '["Scythe Universe"]', '["Scythe: The Rise of Fenris"]', '["Jamey Stegmaier"]', '["Jakub Rozalski"]', '["Stonemaier Games"]', '["Engine Building", "Area Control"]', '["Invaders from Afar"]'),
 
-('G0000015', 'The Crew', 14.99, 'Cooperative trick-taking mission game in space.', 2019, NULL, 2, 5, 20, 30, 10, 99, 7, 0, 'Cooperative',
+('G0000015', 'The Crew', 14.99, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSbKPUvAFmxutMqCaRC82SP8YWRO0JZGgAPOPqijVKggVaP6eN2I5m9C1EfiIdXK-zWOE&usqp=CAU', 'Cooperative trick-taking mission game in space.', 2019, NULL, 2, 5, 20, 30, 10, 99, 7, 0, 'Cooperative',
     '["The Crew Series"]', '["The Crew: Mission Deep Sea"]', '["Thomas Sing"]', '["Marco Armbruster"]', '["Kosmos"]', '["Trick Taking"]', '["New Missions"]');
 
 

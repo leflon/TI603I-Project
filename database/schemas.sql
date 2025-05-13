@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS `BoardGames` (
     id CHAR(8) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
+    imageUrl VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     -- Not using YEAR because it only stores from year 1901. Some games were created way before that, even in the BC era, hence using a signed type.
     yearPublished SMALLINT,
