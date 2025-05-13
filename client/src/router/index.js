@@ -1,5 +1,6 @@
 import {createRouter, createWebHistory} from 'vue-router';
 import HomeView from '../views/Home.vue';
+import {store} from '@/lib/store';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -59,8 +60,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from) => {
-  // need to change isLoggedIn to verify if the user is already logged in
-  const isLoggedIn = true;
+  const isLoggedIn = store.user;
   const protectedRoutes = ['users', 'cart'];
 
   if (to.meta?.title) {
@@ -69,10 +69,9 @@ router.beforeEach((to, from) => {
     document.title = 'Mist';
   }
   if (!isLoggedIn && to.name && protectedRoutes.includes(to.name)) {
-    return {name: 'login'};
+    return '/login?redirect=/' + to.name ;
   }
   return true;
 });
 
-export default router
-  ;
+export default router;
