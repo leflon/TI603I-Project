@@ -12,11 +12,7 @@ const total = computed(() => {
     }
     return total.toFixed(2);
 });
-onMounted(() => {
-    if (!store.user) {
-        router.push('/login?redirect=/cart');
-    }
-});
+
 
 
 const onRemove = async (id) => {

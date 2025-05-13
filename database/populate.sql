@@ -82,7 +82,6 @@ VALUES
 ('R0000019', 'U0000002', 'G0000004', 'Nice drafting game.', 3, '2024-05-14 16:40:00'),
 ('R0000020', 'U0000003', 'G0000009', 'Not very innovative.', 2, '2024-05-15 08:45:00');
 
-# Adapting the attribute avg_grade with respect to the reviews
 UPDATE `BoardGames` SET avg_grade = 3.5 WHERE id = 'G0000001'; -- (3 + 4) / 2
 UPDATE `BoardGames` SET avg_grade = 2.0 WHERE id = 'G0000002'; -- (1 + 3) / 2
 UPDATE `BoardGames` SET avg_grade = 4.0 WHERE id = 'G0000003'; -- (4 + 4) / 2

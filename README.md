@@ -12,16 +12,11 @@ git clone https://github.com/leflon/TI603I-Project.git
 
 This project was made using `Bun`. To ensure best performances and compatibility, we recommend you use it too.
 
-If you really do not wish to install bun, you can use `node` & `npm` to run the project.
+If you really do not wish to install bun, you can use `node` & `npm` to run the project. (Note that in this case, the scripts will have to be modified accordingly)
 
-
-*Client*
 ```bash
-cd client && bun install
-```
-*Server*
-```bash
-cd server && bun install
+# Run this command at the project root to install client, server, and workspace dependencies.  
+bun install-all
 ```
 
 **Initialize Database**
@@ -31,16 +26,11 @@ First, create the database in MySQL
 CREATE DATABASE <your_db_name>
 ```
 
-Then, run the scripts found in `database/`
+Then, run the initialization script found in `database/`
 ```bash
-mysql -u <user> -p <your_db_name> < schemas.sql
-mysql -u <user> -p <your_db_name> < populate.sql
-mysql -u <user> -p <your_db_name> < functions.sql
-mysql -u <user> -p <your_db_name> < indexes.sql
-mysql -u <user> -p <your_db_name> < views.sql
-mysql -u <user> -p <your_db_name> < triggers.sql
-```
+mysql -u <user> -p <your_db_name> < init.sql
 
+```
 
 **Populate env variables**
 
