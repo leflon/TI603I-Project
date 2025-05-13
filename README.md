@@ -48,12 +48,20 @@ In both `client` and `server`, rename `.env.example` to `.env` and fill in the v
 
 **Start the dev environment**
 
+You can either run server and client separately:
+
 *Server*
 ```bash
-bun run dev
+cd server && bun run dev
 ```
 
 *Client*
+
+```bash
+cd client && bun run dev
+```
+
+Or run them concurrently in one terminal:
 
 ```bash
 bun run dev
