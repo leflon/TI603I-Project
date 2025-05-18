@@ -62,6 +62,12 @@ const router = createRouter({
       component: () => import('../views/Admin.vue'),
       meta: {title: 'Admin Panel', requiresAdmin: true},
     },
+    {
+      path: '/orders',
+      name: 'orders',
+      component: () => import('../views/Orders.vue'),
+      meta: {title: 'My Orders'}
+    },
   ],
 });
 

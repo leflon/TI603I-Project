@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {addItemToCart, getUserCart, removeItemFromCart} from '../lib/db';
+import {addItemToCart, getUserCart, removeItemFromCart, submitOrder} from '../lib/db';
 
 const router = Router();
 
@@ -43,6 +43,15 @@ router.post('/remove', async (req, res) => {
 router.get('/get', async (req, res) => {
 	const cart = await getUserCart(req.user.id);
 	res.json({cart});
+});
+
+router.post('/submit', async (req, res) => {
+	try {
+		const orderId = await submitOrder(req.user.id);
+		res.json({success: true, orderId});
+	} catch (err) {
+		res.status(400).json({success: false, message: err.message});
+	}
 });
 
 export default router;

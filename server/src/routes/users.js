@@ -1,4 +1,5 @@
 import express from 'express';
+import {getOrderByUserID} from '../lib/db';
 
 const router = express.Router();
 
@@ -63,26 +64,14 @@ router.get('/wishlist', (req, res) => {
  * @route   GET /api/users/orders
  * @desc    Get user's orders
  */
-router.get('/orders', (req, res) => {
-  const statuses = ['processed', 'shipped', 'delivered'];
-  const status = statuses[Math.floor(Math.random() * statuses.length)];
-  // Dummy orders
-  const orders = [
-    {
-      orderId: 101,
-      items: [
-        {
-          id: 1,
-          name: 'Product 1',
-          price: 29.99
-        }
-      ],
-      total: 29.99,
-      date: '2024-06-01',
-      status
-    }
-  ];
-  res.json({orders});
+router.get('/orders', async (req, res) => {
+  try {
+    console.log('orders')
+    const orders = await getOrderByUserID(req.user.id);
+    res.json({orders});
+  } catch (err) {
+    res.status(400).json({error: err.message});
+  }
 });
 
 export default router;

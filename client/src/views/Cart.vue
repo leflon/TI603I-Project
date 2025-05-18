@@ -23,6 +23,17 @@ const onRemove = async (id) => {
         alert(res.message);
     }
 };
+
+const onSubmitOrder = async () => {
+    if (!confirm('Are you sure you want to buy these items?')) return;
+    const res = await call('/api/cart/submit', {method: 'POST'});
+    if (res.success) {
+        store.cart = {};
+        router.push('/orders');
+    } else {
+        alert(res.message || 'Failed to submit order');
+    }
+};
 </script>
 <template>
     <main>
@@ -48,6 +59,8 @@ const onRemove = async (id) => {
                 <h2>Total</h2>
                 <div>€{{ total }}</div>
             </div>
+            <button @click='onSubmitOrder' style='margin-top: 20px; width: 80%; font-size: 1.2rem;'>Submit
+                Order</button>
         </div>
     </main>
 </template>

@@ -333,9 +333,57 @@ export async function removeItemFromWishlist(userID, boardgameID) {
 
 }
 export async function getOrderByUserID(userID) {
-	const [results] = connection.query(
-		"SELECT * FROM orders WHERE userId = ?", [userID]
+	const [orders] = await connection.query(
+		"SELECT * FROM orders WHERE userId = ? ORDER BY createdAt DESC",
+		[userID]
 	);
-	return results;
+	for (const order of orders) {
+		const [items] = await connection.query(
+			`SELECT oi.gameId, oi.quantity, g.name, g.price, g.imageUrl
+			 FROM OrderItems oi
+			 JOIN BoardGames g ON oi.gameId = g.id
+			 WHERE oi.orderId = ?`,
+			[order.id]
+		);
+		order.items = items;
+	}
+	return orders;
+}
+
+// Create a new order from the user's cart
+export async function submitOrder(userID) {
+	// Get cart items
+	const [cartItems] = await connection.query(
+		"SELECT c.gameId, c.quantity, g.price FROM carts c JOIN BoardGames g ON c.gameId = g.id WHERE c.userId = ?",
+		[userID]
+	);
+	if (!cartItems.length) throw new Error('Cart is empty');
+
+	connection.beginTransaction();
+
+	// Calculate total price
+	const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+	// Create order
+	const orderId = Math.random().toString(36).substr(2, 8); // 8-char random ID
+	await connection.query(
+		"INSERT INTO Orders (id, type, totalPrice, userId, createdAt) VALUES (?, 'purchase', ?, ?, NOW())",
+		[orderId, totalPrice, userID]
+	);
+
+	// Add items to OrderItems
+	for (const item of cartItems) {
+		await connection.query(
+			"INSERT INTO OrderItems (orderId, gameId, quantity) VALUES (?, ?, ?)",
+			[orderId, item.gameId, item.quantity]
+		);
+	}
+
+	// Clear cart
+	await connection.query("DELETE FROM carts WHERE userId = ?", [userID]);
+
+	await connection.commit();
+
+	return orderId;
 }
 
