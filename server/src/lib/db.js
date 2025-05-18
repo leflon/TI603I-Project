@@ -219,13 +219,10 @@ export async function getUserCart(userID) {
 }
 
 export async function addItemToCart(userID, gameId, quantity) {
-	const stock = await getGameQuantity(gameId);
-	if (quantity > stock)
-		throw new Error(`Not enough of '${gameId}' in stock (${stock} available)`);
-
 	let [gameExists] = await connection.query(
 		"SELECT id from boardgames WHERE id = ?", [gameId]
 	);
+
 	if (!gameExists.length)
 		throw Error(`No game with id '${gameId}' in database`);
 
@@ -233,6 +230,7 @@ export async function addItemToCart(userID, gameId, quantity) {
 		"SELECT quantity from carts WHERE gameId = ? AND userId = ?",
 		[gameId, userID]
 	);
+
 	alreadyInCart = alreadyInCart.length ? alreadyInCart[0].quantity : 0;
 	let newQuantity = quantity + alreadyInCart;
 
@@ -248,8 +246,7 @@ export async function addItemToCart(userID, gameId, quantity) {
 			[gameId, userID, newQuantity]
 		);
 	}
-	console.log(`Added ${quantity} of '${gameId}' to user '${userID}' cart (Remaining stock: ${stock - quantity})`);
-	await decreaseGameQuantity(gameId, quantity);
+	console.log(`Added ${quantity} of '${gameId}' to user '${userID}' cart`);
 }
 
 export async function removeItemFromCart(userId, gameId) {
@@ -264,9 +261,7 @@ export async function removeItemFromCart(userId, gameId) {
 		[gameId, userId]
 	);
 
-	await decreaseGameQuantity(gameId, -quantity);
-
-	console.log(`Removed '${gameId}' from user '${userId}' cart (Added back ${quantity} to stock)`);
+	console.log(`Removed '${gameId}' from user '${userId}' cart`);
 }
 
 
@@ -359,31 +354,35 @@ export async function submitOrder(userID) {
 	);
 	if (!cartItems.length) throw new Error('Cart is empty');
 
-	connection.beginTransaction();
+	await connection.beginTransaction();
 
-	// Calculate total price
-	const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+	try {
+		// Calculate total price
+		const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-	// Create order
-	const orderId = Math.random().toString(36).substr(2, 8); // 8-char random ID
-	await connection.query(
-		"INSERT INTO Orders (id, type, totalPrice, userId, createdAt) VALUES (?, 'purchase', ?, ?, NOW())",
-		[orderId, totalPrice, userID]
-	);
-
-	// Add items to OrderItems
-	for (const item of cartItems) {
+		// Create order
+		const orderId = Math.random().toString(36).substr(2, 8); // 8-char random ID
 		await connection.query(
-			"INSERT INTO OrderItems (orderId, gameId, quantity) VALUES (?, ?, ?)",
-			[orderId, item.gameId, item.quantity]
+			"INSERT INTO Orders (id, type, totalPrice, userId, createdAt) VALUES (?, 'purchase', ?, ?, NOW())",
+			[orderId, totalPrice, userID]
 		);
+
+		// Add items to OrderItems (trigger will check stock)
+		for (const item of cartItems) {
+			await connection.query(
+				"INSERT INTO OrderItems (orderId, gameId, quantity) VALUES (?, ?, ?)",
+				[orderId, item.gameId, item.quantity]
+			);
+		}
+
+		// Clear cart
+		await connection.query("DELETE FROM carts WHERE userId = ?", [userID]);
+
+		await connection.commit();
+		return orderId;
+	} catch (err) {
+		await connection.rollback();
+		throw err;
 	}
-
-	// Clear cart
-	await connection.query("DELETE FROM carts WHERE userId = ?", [userID]);
-
-	await connection.commit();
-
-	return orderId;
 }
 

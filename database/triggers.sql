@@ -1,4 +1,4 @@
--- Cannot insert order if quantity available = 0
+-- Cannot insert order if quantity available is less than the amount being ordered
 DELIMITER $$
 
 CREATE TRIGGER if_out_of_stock 
@@ -10,9 +10,9 @@ BEGIN
     FROM BoardGames
     WHERE id = NEW.gameId;
 
-    IF quantity = 0 THEN
+    IF quantity < NEW.quantity THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'You cannot order a game that is out of stock.';
+        SET MESSAGE_TEXT = 'You cannot order more games than are in stock.';
     END IF;
 END$$
 
