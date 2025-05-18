@@ -1,4 +1,3 @@
-
 import mysql from 'mysql2/promise';
 import bcrypt, {compareSync, hashSync} from 'bcryptjs';
 import {isValidEmail, isValidPassword} from './utils.js';
@@ -9,6 +8,8 @@ const connection = await mysql.createConnection({
 	database: process.env.DB_NAME,
 	password: process.env.DB_PASSWORD,
 });
+
+export default connection;
 
 // #region User
 /**
@@ -100,6 +101,10 @@ export async function deleteUserByID(userID) {
 // #endregion
 
 // #region Games
+export async function getAllGames() {
+	const [results] = await connection.query("SELECT id, name FROM BoardGames");
+	return results;
+}
 export async function getGame(gameId) {
 	let [results] = await connection.query(
 		"SELECT * FROM boardgames WHERE id = ?",
@@ -333,3 +338,4 @@ export async function getOrderByUserID(userID) {
 	);
 	return results;
 }
+

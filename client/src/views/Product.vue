@@ -1,5 +1,5 @@
 <script setup>
-import {ref} from 'vue';
+import {ref, computed} from 'vue';
 import call from '@/lib/api';
 import {onMounted} from 'vue';
 import {useRouter} from 'vue-router';
@@ -8,6 +8,9 @@ const router = useRouter();
 const id = router.currentRoute.value.params.id;
 const product = ref(null);
 const quantity = ref(1);
+
+// Computed property to check if the user is an admin
+const isAdmin = computed(() => store.user && store.user.is_admin);
 
 onMounted(async () => {
     const data = await call(`/api/products/${id}`, 'GET');
@@ -31,8 +34,32 @@ const onAdd = async () => {
     } else {
         router.push('/login?redirect=/product/' + id);
     }
-}
+};
 
+const editProduct = () => {
+    if (isAdmin.value && product.value) {
+        router.push({name: 'admin', query: {edit: product.value.id}});
+    }
+};
+
+const deleteProduct = async () => {
+    if (isAdmin.value && product.value) {
+        if (confirm('Are you sure you want to delete this product?')) {
+            try {
+                const response = await call(`/api/admin/games/delete/${product.value.id}`, {method: 'DELETE'});
+                if (response.success) {
+                    alert('Product deleted successfully.');
+                    router.push('/'); // Redirect to homepage or a relevant page
+                } else {
+                    alert('Failed to delete product: ' + (response.error || 'Unknown error'));
+                }
+            } catch (err) {
+                alert('An error occurred while deleting the product.');
+                console.error(err);
+            }
+        }
+    }
+};
 
 </script>
 <template>
@@ -40,6 +67,11 @@ const onAdd = async () => {
         <p>Loading...</p>
     </div>
     <div v-else>
+        <div class="admin-controls" v-if="isAdmin">
+            <button @click="editProduct" class="admin-button edit-button">Edit Product</button>
+            <button @click="deleteProduct" class="admin-button delete-button">Delete Product</button>
+        </div>
+
         <div class='heading'>
             <img :src='product.imageUrl' alt='Product Image' />
             <div class='heading-text'>
@@ -204,5 +236,43 @@ td {
 
 tr td:first-child {
     font-weight: bold;
+}
+
+.admin-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.admin-button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: .8rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.edit-button {
+    background-color: #ffc107;
+
+    &:hover {
+        background-color: #ffd54f;
+    }
+
+    /* Amber */
+    color: black;
+}
+
+.delete-button {
+    background-color: #f44336;
+
+    &:hover {
+        background-color: #ff6358;
+    }
+
+    /* Red */
+    color: white;
 }
 </style>
