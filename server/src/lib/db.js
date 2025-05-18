@@ -433,5 +433,28 @@ export async function getUserReviewForGame(userId, gameId) {
 	);
 	return results[0] || null;
 }
+
+/**
+ * Update a review for a game by a user.
+ */
+export async function updateReview({userId, gameId, description, grade}) {
+	await connection.query(
+		`UPDATE Reviews SET description = ?, grade = ?, createdAt = NOW() WHERE userId = ? AND gameId = ?`,
+		[description, grade, userId, gameId]
+	);
+}
+
+/**
+ * Delete a review by userId and gameId (for user) or by review id (for admin).
+ */
+export async function deleteReview({userId, gameId, reviewId, isAdmin = false}) {
+	if (isAdmin && reviewId) {
+		await connection.query(`DELETE FROM Reviews WHERE id = ?`, [reviewId]);
+	} else if (userId && gameId) {
+		await connection.query(`DELETE FROM Reviews WHERE userId = ? AND gameId = ?`, [userId, gameId]);
+	} else {
+		throw new Error('Insufficient parameters to delete review');
+	}
+}
 // #endregion
 

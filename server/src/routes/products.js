@@ -1,5 +1,5 @@
 import express from 'express';
-import {getBestSellers, searchGames, getAllCategories, getGame, getReviewsForGame, addReview, getUserReviewForGame} from '../lib/db';
+import {getBestSellers, searchGames, getAllCategories, getGame, getReviewsForGame, addReview, getUserReviewForGame, updateReview, deleteReview} from '../lib/db';
 import authMiddleware from '../middleware/auth.js';
 
 const router = express.Router();
@@ -98,6 +98,43 @@ router.post('/:id/review', authMiddleware, async (req, res) => {
   const {description, grade} = req.body;
   try {
     await addReview({userId: req.user.id, gameId: id, description, grade});
+    res.json({success: true});
+  } catch (err) {
+    res.status(500).json({success: false, error: err.message});
+  }
+});
+
+// Update a review for a product (user only)
+router.patch('/:id/review', authMiddleware, async (req, res) => {
+  const {id} = req.params;
+  if (!req.user) return res.status(401).json({success: false, error: 'Not logged in'});
+  const {description, grade} = req.body;
+  try {
+    await updateReview({userId: req.user.id, gameId: id, description, grade});
+    res.json({success: true});
+  } catch (err) {
+    res.status(500).json({success: false, error: err.message});
+  }
+});
+
+// Delete own review (user)
+router.delete('/:id/review', authMiddleware, async (req, res) => {
+  const {id} = req.params;
+  if (!req.user) return res.status(401).json({success: false, error: 'Not logged in'});
+  try {
+    await deleteReview({userId: req.user.id, gameId: id});
+    res.json({success: true});
+  } catch (err) {
+    res.status(500).json({success: false, error: err.message});
+  }
+});
+
+// Delete any review (admin)
+router.delete('/:id/review/:reviewId', authMiddleware, async (req, res) => {
+  if (!req.user || !req.user.is_admin) return res.status(403).json({success: false, error: 'Admin only'});
+  const {reviewId} = req.params;
+  try {
+    await deleteReview({reviewId, isAdmin: true});
     res.json({success: true});
   } catch (err) {
     res.status(500).json({success: false, error: err.message});

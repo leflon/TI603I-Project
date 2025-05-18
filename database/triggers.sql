@@ -1,3 +1,5 @@
+
+
 -- Cannot insert order if quantity available = 0
 DELIMITER $$
 
@@ -56,7 +58,21 @@ END$$
 
 DELIMITER ;
 
+DELIMITER $$
 
+CREATE PROCEDURE UPDATE_AVG_GRADE_FOR_GAME(IN p_gameId CHAR(8))
+BEGIN
+    DECLARE new_avg DECIMAL(3,2);
+    SELECT AVG(grade) INTO new_avg
+    FROM Reviews
+    WHERE gameId = p_gameId;
+
+    UPDATE BoardGames
+    SET avg_grade = new_avg
+    WHERE id = p_gameId;
+END$$
+
+DELIMITER ;
 
 -- Average is updated each time a new grade is given
 DELIMITER $$
@@ -64,14 +80,24 @@ CREATE TRIGGER average_grade_update
 AFTER INSERT ON Reviews
 FOR EACH ROW
 BEGIN
-    DECLARE new_avg DECIMAL(3,2);
-
-    SELECT AVG(grade) INTO new_avg
-    FROM Reviews
-    WHERE gameId = NEW.gameId;
-
-    UPDATE BoardGames
-    SET avg_grade = new_avg
-    WHERE id = NEW.gameId;
+    CALL UPDATE_AVG_GRADE_FOR_GAME(NEW.gameId);
+END$$
+DELIMITER ;
+-- Average is updated each time a grade is updated
+DELIMITER $$
+CREATE TRIGGER average_grade_update_update
+AFTER UPDATE ON Reviews
+FOR EACH ROW
+BEGIN
+    CALL UPDATE_AVG_GRADE_FOR_GAME(NEW.gameId);
+END$$
+DELIMITER ;
+-- Average is updated each time a grade is deleted
+DELIMITER $$
+CREATE TRIGGER average_grade_update_delete
+AFTER DELETE ON Reviews
+FOR EACH ROW
+BEGIN
+    CALL UPDATE_AVG_GRADE_FOR_GAME(OLD.gameId);
 END$$
 DELIMITER ;

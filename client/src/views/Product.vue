@@ -19,6 +19,7 @@ const userReview = ref(null);
 const reviewForm = ref({description: '', grade: 1});
 const submitting = ref(false);
 const reviewError = ref('');
+const editingReview = ref(false);
 
 async function fetchReviews() {
     const res = await call(`/api/products/${id}/reviews`);
@@ -56,6 +57,78 @@ async function submitReview() {
         }
     } catch (e) {
         reviewError.value = 'Failed to submit review.';
+    } finally {
+        submitting.value = false;
+    }
+}
+
+async function startEditReview() {
+    editingReview.value = true;
+    reviewForm.value.description = userReview.value.description;
+    reviewForm.value.grade = userReview.value.grade;
+}
+
+async function cancelEditReview() {
+    editingReview.value = false;
+    reviewError.value = '';
+}
+
+async function updateReviewHandler() {
+    reviewError.value = '';
+    submitting.value = true;
+    try {
+        const res = await call(`/api/products/${id}/review`, {
+            method: 'PATCH',
+            body: {
+                description: reviewForm.value.description,
+                grade: reviewForm.value.grade
+            }
+        });
+        if (res.success) {
+            await fetchReviews();
+            await fetchUserReview();
+            editingReview.value = false;
+        } else {
+            reviewError.value = res.error || 'Failed to update review.';
+        }
+    } catch (e) {
+        reviewError.value = 'Failed to update review.';
+    } finally {
+        submitting.value = false;
+    }
+}
+
+async function deleteOwnReview() {
+    if (!confirm('Delete your review?')) return;
+    submitting.value = true;
+    try {
+        const res = await call(`/api/products/${id}/review`, {method: 'DELETE'});
+        if (res.success) {
+            await fetchReviews();
+            await fetchUserReview();
+        } else {
+            reviewError.value = res.error || 'Failed to delete review.';
+        }
+    } catch (e) {
+        reviewError.value = 'Failed to delete review.';
+    } finally {
+        submitting.value = false;
+        editingReview.value = false;
+    }
+}
+
+async function adminDeleteReview(reviewId) {
+    if (!confirm('Admin: Delete this review?')) return;
+    submitting.value = true;
+    try {
+        const res = await call(`/api/products/${id}/review/${reviewId}`, {method: 'DELETE'});
+        if (res.success) {
+            await fetchReviews();
+        } else {
+            alert(res.error || 'Failed to delete review.');
+        }
+    } catch (e) {
+        alert('Failed to delete review.');
     } finally {
         submitting.value = false;
     }
@@ -210,13 +283,34 @@ const deleteProduct = async () => {
             <h2>Reviews</h2>
 
             <div v-if="store.user">
-                <div v-if="userReview">
+                <div v-if="userReview && !editingReview">
                     <p><strong>Your review:</strong></p>
                     <div class="user-review">
                         <div class="stars">
+                            <IconStar v-for="n in 5" :key="n" :color="n <= userReview.grade ? '#ffb400' : '#ccc'" />
                         </div>
                         <p>{{ userReview.description }}</p>
+                        <div class="review-actions">
+                            <button @click="startEditReview">Edit</button>
+                            <button @click="deleteOwnReview">Delete</button>
+                        </div>
                     </div>
+                </div>
+                <div v-else-if="editingReview" class="review-form">
+                    <h3>Edit your review</h3>
+                    <form @submit.prevent="updateReviewHandler">
+                        <div class="stars-input">
+                            <label>Rating:</label>
+                            <span v-for="n in 5" :key="n" @click="reviewForm.grade = n" style="cursor:pointer">
+                                <IconStar :color="n <= reviewForm.grade ? '#ffb400' : '#ccc'" />
+                            </span>
+                        </div>
+                        <textarea v-model="reviewForm.description" placeholder="Write your comment..." required rows="3"
+                            style="width:100%;margin:10px 0;"></textarea>
+                        <button type="submit" :disabled="submitting">Save</button>
+                        <button type="button" @click="cancelEditReview" :disabled="submitting">Cancel</button>
+                        <div v-if="reviewError" class="review-error">{{ reviewError }}</div>
+                    </form>
                 </div>
                 <div v-else class="review-form">
                     <h3>Leave a review</h3>
@@ -248,6 +342,8 @@ const deleteProduct = async () => {
                             <IconStar v-for="n in 5" :key="n"
                                 :color="n <= review.grade ? 'var(--color-primary)' : '#ccc'" />
                         </span>
+                        <button v-if="store.user && store.user.is_admin" class="admin-delete-btn"
+                            @click="adminDeleteReview(review.id)">Delete</button>
                     </div>
                     <div class="review-body">{{ review.description }}</div>
                 </div>
@@ -475,5 +571,27 @@ tr td:first-child {
 .half-star {
     position: relative;
     overflow: hidden;
+}
+
+.review-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.admin-delete-btn {
+    margin-left: 16px;
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 4px 10px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background .1s;
+}
+
+.admin-delete-btn:hover {
+    background: #ff6358;
 }
 </style>

@@ -33,6 +33,6 @@ BEGIN
 	JOIN OrderItems i ON i.orderId = o.id
 	WHERE i.gameId = gameId;
 	RETURN total;
-END$$ 
+END$$
 
 DELIMITER ;
