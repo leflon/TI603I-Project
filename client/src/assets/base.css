@@ -1,6 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Sofia+Sans:ital,wght@0,1..1000;1,1..1000&display=swap'); /*Sofia Sans*/
+@import url('https://fonts.googleapis.com/css2?family=Sofia+Sans:ital,wght@0,1..1000;1,1..1000&display=swap');
+/*Sofia Sans*/
 
-:root{
+:root {
   --color-primary: #ff0055;
   --color-secondary: #ff4683;
   --color-tertiary: #fe6a9b;
@@ -8,4 +9,3 @@
   --color-bg: #fef2f4;
   --color-dark: #82002b;
 }
-

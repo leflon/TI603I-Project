@@ -1,5 +1,6 @@
 import express from 'express';
-import {getBestSellers, searchGames, getAllCategories, getGame} from '../lib/db';
+import {getBestSellers, searchGames, getAllCategories, getGame, getReviewsForGame, addReview, getUserReviewForGame} from '../lib/db';
+import authMiddleware from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -65,6 +66,42 @@ router.get('/:id', async (req, res) => {
     return res.status(404).json({message: 'Product not found'});
   }
   return res.json({product});
+});
+
+// Get all reviews for a product
+router.get('/:id/reviews', async (req, res) => {
+  const {id} = req.params;
+  try {
+    const reviews = await getReviewsForGame(id);
+    res.json({success: true, reviews});
+  } catch (err) {
+    res.status(500).json({success: false, error: err.message});
+  }
+});
+
+// Get the current user's review for a product
+router.get('/:id/review', authMiddleware, async (req, res) => {
+  const {id} = req.params;
+  if (!req.user) return res.status(401).json({success: false, error: 'Not logged in'});
+  try {
+    const review = await getUserReviewForGame(req.user.id, id);
+    res.json({success: true, review});
+  } catch (err) {
+    res.status(500).json({success: false, error: err.message});
+  }
+});
+
+// Add a review for a product
+router.post('/:id/review', authMiddleware, async (req, res) => {
+  const {id} = req.params;
+  if (!req.user) return res.status(401).json({success: false, error: 'Not logged in'});
+  const {description, grade} = req.body;
+  try {
+    await addReview({userId: req.user.id, gameId: id, description, grade});
+    res.json({success: true});
+  } catch (err) {
+    res.status(500).json({success: false, error: err.message});
+  }
 });
 
 export default router;

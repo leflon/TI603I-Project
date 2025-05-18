@@ -6,13 +6,13 @@
   font-weight: normal;
 }
 
-body{
+body {
   background-color: var(--color-bg);
 
 }
-*{
+
+* {
   text-decoration: none;
   color: var(--color-secondary);
   font-family: 'Sofia Sans', sans-serif;
 }
-

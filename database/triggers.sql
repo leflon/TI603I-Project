@@ -64,14 +64,14 @@ CREATE TRIGGER average_grade_update
 AFTER INSERT ON Reviews
 FOR EACH ROW
 BEGIN
-    DECLARE avg_grade DECIMAL(3,2);
+    DECLARE new_avg DECIMAL(3,2);
 
-    SELECT AVG(grade) INTO avg_grade
+    SELECT AVG(grade) INTO new_avg
     FROM Reviews
     WHERE gameId = NEW.gameId;
 
     UPDATE BoardGames
-    SET average_grade = avg_grade
+    SET avg_grade = new_avg
     WHERE id = NEW.gameId;
 END$$
 DELIMITER ;

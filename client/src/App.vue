@@ -7,7 +7,7 @@ import {onMounted} from 'vue';
 import call from './lib/api';
 
 onMounted(async () => {
- 
+
 });
 </script>
 

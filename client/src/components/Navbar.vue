@@ -45,9 +45,10 @@ const search = async () => {
         <div class='cart-size' v-if='itemsInCart > 0'>{{ itemsInCart }}</div>
         <i class="fa-solid fa-cart-shopping"></i>
       </RouterLink>
+      <RouterLink to='/orders' v-if='store.user'>My Orders</RouterLink>
       <RouterLink to="/account"><i class="fa-solid fa-circle-user"></i></RouterLink>
       <a href='#' @click='logout' v-if='store.user'>Log out ({{ store.user.first_name + ' ' + store.user.last_name
-        }})</a>
+      }})</a>
       <RouterLink to="/login" v-else>Log in</RouterLink>
     </div>
   </nav>

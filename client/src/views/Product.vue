@@ -4,6 +4,8 @@ import call from '@/lib/api';
 import {onMounted} from 'vue';
 import {useRouter} from 'vue-router';
 import {store} from '@/lib/store';
+import IconStar from '@/components/icons/IconStar.vue';
+
 const router = useRouter();
 const id = router.currentRoute.value.params.id;
 const product = ref(null);
@@ -12,9 +14,58 @@ const quantity = ref(1);
 // Computed property to check if the user is an admin
 const isAdmin = computed(() => store.user && store.user.is_admin);
 
+const reviews = ref([]);
+const userReview = ref(null);
+const reviewForm = ref({description: '', grade: 1});
+const submitting = ref(false);
+const reviewError = ref('');
+
+async function fetchReviews() {
+    const res = await call(`/api/products/${id}/reviews`);
+    reviews.value = res.reviews || [];
+}
+
+async function fetchUserReview() {
+    if (!store.user) return;
+    const res = await call(`/api/products/${id}/review`);
+    userReview.value = res.review;
+    if (userReview.value) {
+        reviewForm.value.description = userReview.value.description;
+        reviewForm.value.grade = userReview.value.grade;
+    }
+}
+
+async function submitReview() {
+    reviewError.value = '';
+    submitting.value = true;
+    try {
+        const res = await call(`/api/products/${id}/review`, {
+            method: 'POST',
+            body: {
+                description: reviewForm.value.description,
+                grade: reviewForm.value.grade
+            }
+        });
+        if (res.success) {
+            await fetchReviews();
+            await fetchUserReview();
+            reviewForm.value.description = '';
+            reviewForm.value.grade = 0;
+        } else {
+            reviewError.value = res.error || 'Failed to submit review.';
+        }
+    } catch (e) {
+        reviewError.value = 'Failed to submit review.';
+    } finally {
+        submitting.value = false;
+    }
+}
+
 onMounted(async () => {
     const data = await call(`/api/products/${id}`, 'GET');
     product.value = data.product;
+    await fetchReviews();
+    await fetchUserReview();
 });
 
 const onAdd = async () => {
@@ -49,7 +100,7 @@ const deleteProduct = async () => {
                 const response = await call(`/api/admin/games/delete/${product.value.id}`, {method: 'DELETE'});
                 if (response.success) {
                     alert('Product deleted successfully.');
-                    router.push('/'); // Redirect to homepage or a relevant page
+                    router.push('/');
                 } else {
                     alert('Failed to delete product: ' + (response.error || 'Unknown error'));
                 }
@@ -77,6 +128,14 @@ const deleteProduct = async () => {
             <div class='heading-text'>
                 <h1>{{ product.name }}</h1>
                 <p>{{ product.description }}</p>
+                <div class="star-rating">
+                    <span v-for="n in 5" :key="n">
+                        <IconStar :color="n <= product.avg_grade ? 'var(--color-primary)' : '#ccc'" />
+                    </span>
+                    <span>
+                        ({{ product.avg_grade }})
+                    </span>
+                </div>
                 <div class='price-line'>
                     <div class='price'>€{{ product.price }}</div>
                     <div>
@@ -94,55 +153,106 @@ const deleteProduct = async () => {
         </div>
         <h2>Product details</h2>
         <table>
-            <tr>
-                <td>Category</td>
-                <td>{{ product.category }}</td>
-            </tr>
-            <tr>
-                <td>Age</td>
-                <td>{{ product.min_age }} - {{ product.max_age }}</td>
-            </tr>
-            <tr>
-                <td>Play time (min)</td>
-                <td>{{ product.min_play_time }} - {{ product.max_play_time }}</td>
-            </tr>
-            <tr>
-                <td>Players</td>
-                <td>{{ product.min_players }} - {{ product.max_players }}</td>
-            </tr>
-            <tr>
-                <td>Designers</td>
-                <td>{{ product.designers.join(', ') }}</td>
-            </tr>
-            <tr>
-                <td>Publishers</td>
-                <td>{{ product.publishers.join(', ') }}</td>
-            </tr>
-            <tr>
-                <td>Artists</td>
-                <td>{{ product.artists.join(', ') }}</td>
-            </tr>
-            <tr>
-                <td>Release year</td>
-                <td>{{ product.yearPublished }}</td>
-            </tr>
-            <tr>
-                <td>Game family</td>
-                <td>{{ product.family.join(', ') }}</td>
-            </tr>
-            <tr>
-                <td>Implementations</td>
-                <td>{{ product.implementations.join(', ') }}</td>
-            </tr>
-            <tr>
-                <td>Expansions</td>
-                <td>{{ product.expansions.join(', ') }}</td>
-            </tr>
-            <tr>
-                <td>Mechanics</td>
-                <td>{{ product.mechanics.join(', ') }}</td>
-            </tr>
+            <tbody>
+                <tr>
+                    <td>Category</td>
+                    <td>{{ product.category }}</td>
+                </tr>
+                <tr>
+                    <td>Age</td>
+                    <td>{{ product.min_age }} - {{ product.max_age }}</td>
+                </tr>
+                <tr>
+                    <td>Play time (min)</td>
+                    <td>{{ product.min_play_time }} - {{ product.max_play_time }}</td>
+                </tr>
+                <tr>
+                    <td>Players</td>
+                    <td>{{ product.min_players }} - {{ product.max_players }}</td>
+                </tr>
+                <tr>
+                    <td>Designers</td>
+                    <td>{{ product.designers.join(', ') }}</td>
+                </tr>
+                <tr>
+                    <td>Publishers</td>
+                    <td>{{ product.publishers.join(', ') }}</td>
+                </tr>
+                <tr>
+                    <td>Artists</td>
+                    <td>{{ product.artists.join(', ') }}</td>
+                </tr>
+                <tr>
+                    <td>Release year</td>
+                    <td>{{ product.yearPublished }}</td>
+                </tr>
+                <tr>
+                    <td>Game family</td>
+                    <td>{{ product.family.join(', ') }}</td>
+                </tr>
+                <tr>
+                    <td>Implementations</td>
+                    <td>{{ product.implementations.join(', ') }}</td>
+                </tr>
+                <tr>
+                    <td>Expansions</td>
+                    <td>{{ product.expansions.join(', ') }}</td>
+                </tr>
+                <tr>
+                    <td>Mechanics</td>
+                    <td>{{ product.mechanics.join(', ') }}</td>
+                </tr>
+            </tbody>
         </table>
+
+        <!-- Review Section -->
+        <section class="reviews-section">
+            <h2>Reviews</h2>
+
+            <div v-if="store.user">
+                <div v-if="userReview">
+                    <p><strong>Your review:</strong></p>
+                    <div class="user-review">
+                        <div class="stars">
+                        </div>
+                        <p>{{ userReview.description }}</p>
+                    </div>
+                </div>
+                <div v-else class="review-form">
+                    <h3>Leave a review</h3>
+                    <form @submit.prevent="submitReview">
+                        <div class="stars-input">
+                            <label>Rating:</label>
+                            <span v-for="n in 5" :key="n" @click="reviewForm.grade = n" style="cursor:pointer">
+                                <IconStar :color="n <= reviewForm.grade ? '#ffb400' : '#ccc'" />
+                            </span>
+                        </div>
+                        <textarea v-model="reviewForm.description" placeholder="Write your comment..." required rows="3"
+                            style="width:100%;margin:10px 0;"></textarea>
+                        <button type="submit" :disabled="submitting">Submit Review</button>
+                        <div v-if="reviewError" class="review-error">{{ reviewError }}</div>
+                    </form>
+                </div>
+            </div>
+            <div v-else>
+                <p><em>Login to leave a review.</em></p>
+            </div>
+            <div class="review-list">
+                <h3 v-if="reviews.length">All reviews</h3>
+                <div v-if="!reviews.length">No reviews yet.</div>
+                <div v-for="review in reviews" :key="review.id" class="review-item">
+                    <div class="review-header">
+                        <span class="review-author">{{ review.first_name }} {{ review.last_name }}</span>
+                        <span class="review-date">{{ new Date(review.createdAt).toLocaleDateString() }}</span>
+                        <span class="review-stars">
+                            <IconStar v-for="n in 5" :key="n"
+                                :color="n <= review.grade ? 'var(--color-primary)' : '#ccc'" />
+                        </span>
+                    </div>
+                    <div class="review-body">{{ review.description }}</div>
+                </div>
+            </div>
+        </section>
     </div>
 </template>
 
@@ -169,6 +279,7 @@ const deleteProduct = async () => {
     transition: all .5s ease;
 
 }
+
 .heading img:hover {
     transform: scale(1.05);
 }
@@ -210,7 +321,9 @@ button {
     }
 }
 
-h1, h2, .price{
+h1,
+h2,
+.price {
     color: var(--color-primary);
 }
 
@@ -274,5 +387,93 @@ tr td:first-child {
 
     /* Red */
     color: white;
+}
+
+.reviews-section {
+    margin: 40px auto 0 auto;
+    max-width: 800px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(255, 0, 85, 0.06);
+    padding: 32px 32px 24px 32px;
+}
+
+.review-form {
+    margin-bottom: 24px;
+}
+
+.stars-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.stars {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 4px;
+}
+
+.review-list {
+    margin-top: 24px;
+}
+
+.review-item {
+    border-bottom: 1px solid #eee;
+    padding: 12px 0;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 1rem;
+    color: #555;
+}
+
+.review-author {
+    font-weight: bold;
+    color: var(--color-primary);
+}
+
+.review-date {
+    color: #888;
+    font-size: 0.95em;
+}
+
+.review-stars {
+    margin-left: auto;
+    display: flex;
+    gap: 2px;
+}
+
+.review-body {
+    margin-top: 4px;
+    font-size: 1.1rem;
+    color: #222;
+}
+
+.review-error {
+    color: red;
+    margin-top: 8px;
+}
+
+.user-review {
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+}
+
+.star-rating {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.half-star {
+    position: relative;
+    overflow: hidden;
 }
 </style>

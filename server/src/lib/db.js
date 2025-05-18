@@ -364,26 +364,74 @@ export async function submitOrder(userID) {
 	// Calculate total price
 	const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-	// Create order
-	const orderId = Math.random().toString(36).substr(2, 8); // 8-char random ID
-	await connection.query(
-		"INSERT INTO Orders (id, type, totalPrice, userId, createdAt) VALUES (?, 'purchase', ?, ?, NOW())",
-		[orderId, totalPrice, userID]
-	);
-
-	// Add items to OrderItems
-	for (const item of cartItems) {
+	try {
+		const [orderIdResult] = await connection.query("SELECT ID() as orderId");
+		const orderId = orderIdResult[0].orderId;
+		// Create order
 		await connection.query(
-			"INSERT INTO OrderItems (orderId, gameId, quantity) VALUES (?, ?, ?)",
-			[orderId, item.gameId, item.quantity]
+			"INSERT INTO Orders (id, type, totalPrice, userId, createdAt) VALUES (?, 'purchase', ?, ?, NOW())",
+			[orderId, totalPrice, userID]
 		);
+
+		// Add items to OrderItems
+		for (const item of cartItems) {
+			await connection.query(
+				"INSERT INTO OrderItems (orderId, gameId, quantity) VALUES (?, ?, ?)",
+				[orderId, item.gameId, item.quantity]
+			);
+		}
+
+		// Clear cart
+		await connection.query("DELETE FROM carts WHERE userId = ?", [userID]);
+
+		await connection.commit();
+	} catch (err) {
+		await connection.rollback();
+		throw err;
 	}
-
-	// Clear cart
-	await connection.query("DELETE FROM carts WHERE userId = ?", [userID]);
-
-	await connection.commit();
 
 	return orderId;
 }
+
+// #region Reviews
+/**
+ * Get all reviews for a specific game, newest first.
+ */
+export async function getReviewsForGame(gameId) {
+	const [results] = await connection.query(
+		`SELECT r.*, u.first_name, u.last_name FROM Reviews r
+		 JOIN Users u ON r.userId = u.id
+		 WHERE r.gameId = ?
+		 ORDER BY r.createdAt DESC`,
+		[gameId]
+	);
+	return results;
+}
+
+/**
+ * Add a review for a game by a user.
+ */
+export async function addReview({userId, gameId, description, grade}) {
+	// Generate a random 8-char ID for the review
+	const [idResult] = await connection.query("SELECT ID() as id");
+	const id = idResult[0].id;
+	await connection.query(
+		`INSERT INTO Reviews (id, userId, gameId, description, grade, createdAt)
+		 VALUES (?, ?, ?, ?, ?, NOW())`,
+		[id, userId, gameId, description, grade]
+	);
+	return id;
+}
+
+/**
+ * Get the review for a game by a specific user (if any).
+ */
+export async function getUserReviewForGame(userId, gameId) {
+	const [results] = await connection.query(
+		`SELECT * FROM Reviews WHERE userId = ? AND gameId = ?`,
+		[userId, gameId]
+	);
+	return results[0] || null;
+}
+// #endregion
 
