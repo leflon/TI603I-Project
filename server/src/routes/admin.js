@@ -31,12 +31,12 @@ router.post('/games/add', async (req, res) => {
 	try {
 		await db.query(
 			`INSERT INTO BoardGames (
-				id, name, price, description, yearPublished, avg_grade, min_players, max_players,
+				id, name, price, imageUrl, description, yearPublished, avg_grade, min_players, max_players,
 				min_play_time, max_play_time, min_age, max_age, quantity_available, quantity_lent,
 				category, family, implementations, designers, artists, publishers, mechanics, expansions
-			) VALUES (ID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			) VALUES (ID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			[
-				name, price, description, yearPublished, avg_grade, min_players, max_players,
+				name, price, 'https://citygem.app/wp-content/uploads/2024/08/placeholder-1-1.png', description, yearPublished, avg_grade, min_players, max_players,
 				min_play_time, max_play_time, min_age, max_age, quantity_available, quantity_lent,
 				category, JSON.stringify(family), JSON.stringify(implementations), JSON.stringify(designers),
 				JSON.stringify(artists), JSON.stringify(publishers), JSON.stringify(mechanics), JSON.stringify(expansions)

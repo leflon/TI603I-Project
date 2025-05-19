@@ -37,7 +37,7 @@ export async function createUser(first_name, last_name, email, password) {
 		"INSERT INTO Users VALUES (ID(), ?, ?, ?, ?, 0)",
 		[first_name, last_name, email, password_hash]
 	); // Will throw if email already exists
-	[results] = await connection.query(
+	const [results] = await connection.query(
 		"SELECT id FROM Users WHERE email = ?",
 		[email]
 	);
