@@ -1,13 +1,13 @@
-import './assets/main.css';
 
 import {createApp} from 'vue';
 import App from './App.vue';
-import router from './router';
-import { store } from './lib/store';
+import './assets/main.css';
 import call from './lib/api';
+import {store} from './lib/store';
+import router from './router';
 
 async function bootstrap() {
-     const {user} = await call('/api/auth/me');
+  const {user} = await call('/api/auth/me');
   if (user) {
     store.user = user;
   }
@@ -15,10 +15,9 @@ async function bootstrap() {
   if (cart) {
     store.cart = cart;
   }
-
-    const app = createApp(App);
-    app.use(router);
-    app.mount('#app');
+  const app = createApp(App);
+  app.use(router);
+  app.mount('#app');
 }
 
 bootstrap();

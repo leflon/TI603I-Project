@@ -1,10 +1,7 @@
 <script setup>
-import {RouterLink, RouterView} from 'vue-router';
-import Navbar from './components/Navbar.vue';
-import Home from './views/Home.vue';
-import {store} from './lib/store';
 import {onMounted} from 'vue';
-import call from './lib/api';
+import {RouterView} from 'vue-router';
+import Navbar from './components/Navbar.vue';
 
 onMounted(async () => {
 
