@@ -11,6 +11,7 @@ onMounted(async () => {
 		const res = await call('/api/users/orders');
 		console.log(res);
 		orders.value = res.orders || [];
+		console.log(orders.value);
 	} catch (err) {
 		error.value = err.message || 'Failed to load orders';
 	} finally {
@@ -37,7 +38,7 @@ onMounted(async () => {
 				<div class="order-total">Total: <span class="price">€{{ order.totalPrice }}</span></div>
 				<h3>Items ({{ order.items.length }})</h3>
 				<div v-if="order.items && order.items.length" class="order-items-list">
-					<RouterLink :to='`/product/${item.gameId}`' v-for="item in order.items" :key="item.gameId"
+					<RouterLink :to='`/product/${item.id}`' v-for="item in order.items" :key="item.gameId"
 						class="order-item-entry">
 						<img :src="item.imageUrl" alt="Game image" class="order-item-img" />
 						<div class="order-item-details">

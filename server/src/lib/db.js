@@ -72,7 +72,7 @@ export async function checkUserCredentials(email, password) {
 
 export async function getUserByID(userID) {
 	const [results] = await connection.query(
-		"SELECT * FROM users WHERE id = ?",
+		"SELECT * FROM UsersSafe WHERE id = ?",
 		[userID]
 	);
 	if (!results.length)
@@ -102,7 +102,7 @@ export async function deleteUserByID(userID) {
 
 // #region Games
 export async function getAllGames() {
-	const [results] = await connection.query("SELECT id, name FROM BoardGames");
+	const [results] = await connection.query("SELECT id, name FROM SimpleGameView");
 	return results;
 }
 export async function getGame(gameId) {
@@ -143,7 +143,7 @@ export async function searchGames({
 	if (isNaN(limit) || limit < 0)
 		limit = 10;
 	const query = `
-		SELECT * FROM BoardGames
+		SELECT * FROM SimpleGameView
 		WHERE
 			name LIKE ?
 			AND category LIKE ?
@@ -175,14 +175,14 @@ export async function searchGames({
 
 export async function getBestSellers() {
 	let [results] = await connection.query(
-		"SELECT * FROM boardgames ORDER BY GAME_ORDERS_COUNT(id) DESC LIMIT 5"
+		"SELECT * FROM SimpleGameView ORDER BY GAME_ORDERS_COUNT(id) DESC LIMIT 5"
 	);
 	return results;
 }
 
 
 export async function getGameQuantity(gameId) {
-	let [boardgameAvailableQuantity] = await connection.query("SELECT quantity_available FROM boardgames WHERE id = ?",
+	let [boardgameAvailableQuantity] = await connection.query("SELECT quantity_available FROM SimpleGameView WHERE id = ?",
 		[gameId]
 	);
 	if (!boardgameAvailableQuantity.length)
@@ -206,7 +206,7 @@ export async function decreaseGameQuantity(boardgameID, quantity) {
 // #region Carts
 export async function getUserCart(userID) {
 	const [results] = await connection.query(
-		"SELECT c.quantity, g.* FROM carts c JOIN BoardGames g ON c.gameId = g.id WHERE userId = ?",
+		"SELECT * FROM FullCarts WHERE userId = ?",
 		[userID]
 	);
 
@@ -271,9 +271,6 @@ export async function removeItemFromCart(userId, gameId) {
 
 
 // #endregion
-
-
-
 export async function getWishlistByUserID(userID) {
 	if (!userID.length)
 		throw new Error(`Invalid parameter(s): userID='${userID}'`);
@@ -334,27 +331,52 @@ export async function removeItemFromWishlist(userID, boardgameID) {
 }
 export async function getOrderByUserID(userID) {
 	const [orders] = await connection.query(
-		"SELECT * FROM orders WHERE userId = ? ORDER BY createdAt DESC",
+		"SELECT * FROM FullOrders WHERE userId = ? ORDER BY createdAt DESC",
 		[userID]
 	);
-	for (const order of orders) {
-		const [items] = await connection.query(
-			`SELECT oi.gameId, oi.quantity, g.name, g.price, g.imageUrl
-			 FROM OrderItems oi
-			 JOIN BoardGames g ON oi.gameId = g.id
-			 WHERE oi.orderId = ?`,
-			[order.id]
-		);
-		order.items = items;
+
+	const grouped = {};
+	for (const row of orders) {
+		const orderId = row.orderId;
+		if (!grouped[orderId]) {
+			grouped[orderId] = {
+				id: orderId,
+				type: row.type,
+				totalPrice: row.totalPrice,
+				userId: row.userId,
+				createdAt: row.createdAt,
+				items: []
+			};
+		}
+		// If FullOrders includes OrderItems columns, push them to items
+		if (row.gameId) {
+			grouped[orderId].items.push({
+				id: row.id,
+				name: row.name,
+				price: row.price,
+				description: row.description,
+				avg_grade: row.avg_grade,
+				min_players: row.min_players,
+				max_players: row.max_players,
+				min_play_time: row.min_play_time,
+				max_play_time: row.max_play_time,
+				min_age: row.min_age,
+				max_age: row.max_age,
+				imageUrl: row.imageUrl,
+				quantity_available: row.quantity_available,
+				price: row.price,
+				quantity: row.quantity
+			});
+		}
 	}
-	return orders;
+	return grouped;
 }
 
 // Create a new order from the user's cart
 export async function submitOrder(userID) {
 	// Get cart items
 	const [cartItems] = await connection.query(
-		"SELECT c.gameId, c.quantity, g.price FROM carts c JOIN BoardGames g ON c.gameId = g.id WHERE c.userId = ?",
+		"SELECT * FROM FullCarts WHERE userId = ?",
 		[userID]
 	);
 	if (!cartItems.length) throw new Error('Cart is empty');
@@ -374,10 +396,11 @@ export async function submitOrder(userID) {
 		);
 
 		// Add items to OrderItems
+		console.log(cartItems);
 		for (const item of cartItems) {
 			await connection.query(
 				"INSERT INTO OrderItems (orderId, gameId, quantity) VALUES (?, ?, ?)",
-				[orderId, item.gameId, item.quantity]
+				[orderId, item.id, item.quantity]
 			);
 		}
 
@@ -387,6 +410,8 @@ export async function submitOrder(userID) {
 		await connection.commit();
 	} catch (err) {
 		await connection.rollback();
+		console.log('error here');
+		console.error(err);
 		throw err;
 	}
 
@@ -399,10 +424,7 @@ export async function submitOrder(userID) {
  */
 export async function getReviewsForGame(gameId) {
 	const [results] = await connection.query(
-		`SELECT r.*, u.first_name, u.last_name FROM Reviews r
-		 JOIN Users u ON r.userId = u.id
-		 WHERE r.gameId = ?
-		 ORDER BY r.createdAt DESC`,
+		`SELECT * FROM ReviewsWithAuthors WHERE gameId = ? ORDER BY createdAt DESC`,
 		[gameId]
 	);
 	return results;

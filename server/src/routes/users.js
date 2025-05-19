@@ -66,8 +66,8 @@ router.get('/wishlist', (req, res) => {
  */
 router.get('/orders', async (req, res) => {
   try {
-    console.log('orders')
     const orders = await getOrderByUserID(req.user.id);
+    console.log('Orders:', orders);
     res.json({orders});
   } catch (err) {
     res.status(400).json({error: err.message});
