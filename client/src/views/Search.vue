@@ -47,7 +47,6 @@ const fetchSearchResults = async (name) => {
 	try {
 		const query = `?${name ? 'name=' + name : ''}${category.value ? '&category=' + category.value : ''}`;
 		const data = await call('/api/products/search' + query);
-		console.log('Search results:', data);
 		results.value = data.products;
 	} catch (error) {
 		console.error('Error fetching search results:', error);

@@ -12,62 +12,12 @@ router.use((req, res, next) => {
 });
 
 /**
- * @route   GET /api/users/profile
- * @desc    Get user's profile
- */
-router.get('/profile', (req, res) => {
-  // Dummy user profile
-  const user = {
-    id: req.user?.id,
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john@example.com'
-  };
-  res.json({user});
-});
-
-/**
- * @route   GET /api/users/cart
- * @desc    Get user's cart items
- */
-router.get('/cart', (req, res) => {
-  // Dummy cart items
-  const cart = [
-    {
-      id: 1,
-      name: 'Product 1',
-      price: 29.99,
-      imageUrl: 'https://i.ytimg.com/vi/11e0LgJ_giw/sddefault.jpg'
-    }
-  ];
-  res.json({cart});
-});
-
-/**
- * @route   GET /api/users/wishlist
- * @desc    Get user's wishlist items
- */
-router.get('/wishlist', (req, res) => {
-  // Dummy wishlist items
-  const wishlist = [
-    {
-      id: 2,
-      name: 'Product 2',
-      price: 39.99,
-      imageUrl: 'https://i.ytimg.com/vi/11e0LgJ_giw/sddefault.jpg'
-    }
-  ];
-  res.json({wishlist});
-});
-
-/**
  * @route   GET /api/users/orders
  * @desc    Get user's orders
  */
 router.get('/orders', async (req, res) => {
   try {
     const orders = await getOrderByUserID(req.user.id);
-    console.log('Orders:', orders);
     res.json({orders});
   } catch (err) {
     res.status(400).json({error: err.message});

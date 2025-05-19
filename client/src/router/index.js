@@ -73,7 +73,6 @@ const router = createRouter({
 
 router.beforeEach((to, from) => {
   const isLoggedIn = !!store.user; // Check if user is logged in
-  console.log(store.user);
   const isAdmin = store.user?.is_admin || false; // Check if user is admin
 
   const protectedRoutes = ['users', 'cart'];

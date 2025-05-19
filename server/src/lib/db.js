@@ -44,7 +44,7 @@ export async function createUser(first_name, last_name, email, password) {
 		"INSERT INTO Users VALUES (ID(), ?, ?, ?, ?, 0)",
 		[first_name, last_name, email, password_hash]
 	);
-	results = await connection.query(
+	[results] = await connection.query(
 		"SELECT id FROM Users WHERE email = ?",
 		[email]
 	);
@@ -385,10 +385,10 @@ export async function submitOrder(userID) {
 
 	// Calculate total price
 	const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
+	let orderId;
 	try {
 		const [orderIdResult] = await connection.query("SELECT ID() as orderId");
-		const orderId = orderIdResult[0].orderId;
+		orderId = orderIdResult[0].orderId;
 		// Create order
 		await connection.query(
 			"INSERT INTO Orders (id, type, totalPrice, userId, createdAt) VALUES (?, 'purchase', ?, ?, NOW())",
@@ -396,7 +396,6 @@ export async function submitOrder(userID) {
 		);
 
 		// Add items to OrderItems
-		console.log(cartItems);
 		for (const item of cartItems) {
 			await connection.query(
 				"INSERT INTO OrderItems (orderId, gameId, quantity) VALUES (?, ?, ?)",
@@ -410,7 +409,6 @@ export async function submitOrder(userID) {
 		await connection.commit();
 	} catch (err) {
 		await connection.rollback();
-		console.log('error here');
 		console.error(err);
 		throw err;
 	}

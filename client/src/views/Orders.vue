@@ -9,9 +9,7 @@ const error = ref(null);
 onMounted(async () => {
 	try {
 		const res = await call('/api/users/orders');
-		console.log(res);
 		orders.value = res.orders || [];
-		console.log(orders.value);
 	} catch (err) {
 		error.value = err.message || 'Failed to load orders';
 	} finally {

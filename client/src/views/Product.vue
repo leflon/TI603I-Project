@@ -144,7 +144,6 @@ onMounted(async () => {
 const onAdd = async () => {
     if (store.user) {
         const res = await call(`/api/cart/add`, {method: 'POST', body: {gameId: id, quantity: quantity.value}});
-        console.log(res);
         if (res.success) {
             if (store.cart[id]) {
                 store.cart[id].quantity = store.cart[id].quantity + quantity.value;

@@ -8,7 +8,6 @@ const categories = ref([]);
 
 onMounted(async () => {
   const res = await call('/api/products/categories');
-  console.log(res);
   if (res.success) {
     categories.value = res.categories;
   } else {

@@ -36,7 +36,6 @@ const search = async () => {
     <div class="nav-left">
       <RouterLink to="/">MIST</RouterLink>
       <RouterLink to="/categories">Categories</RouterLink>
-      <RouterLink to="/support">About</RouterLink>
       <RouterLink to="/admin" v-if="store.user && store.user.is_admin">Admin</RouterLink>
       <input type="text" placeholder="Search" class="search" v-model.trim='searchQuery' @keydown.enter='search' />
     </div>
@@ -46,9 +45,8 @@ const search = async () => {
         <i class="fa-solid fa-cart-shopping"></i>
       </RouterLink>
       <RouterLink to='/orders' v-if='store.user'>My Orders</RouterLink>
-      <RouterLink to="/account"><i class="fa-solid fa-circle-user"></i></RouterLink>
       <a href='#' @click='logout' v-if='store.user'>Log out ({{ store.user.first_name + ' ' + store.user.last_name
-      }})</a>
+        }})</a>
       <RouterLink to="/login" v-else>Log in</RouterLink>
     </div>
   </nav>
