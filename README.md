@@ -1,7 +1,7 @@
 # Mist - Board games marketplace
 ## TI603I Project
 ## ⚠️ Ongoing Bug ⚠️
-> **If the website looks weird, as if CSS was missing,** this is an issue with Vite's HMR that we still haven't been able to fix. For now, to resolve this problem, simply save the `client/src/assets/main.css` file. Even without editing it, saving it will trigger Vite's HMR and load the CSS correctly.
+> **If the website looks weird, as if CSS was missing,** this is an issue with Vite's HMR that we still haven't been able to fix. For now, to resolve this problem, simply save the `client/src/assets/main.css` file **after starting Vite's dev server**. Even without editing it, saving it will trigger Vite's HMR and load the CSS correctly.
 ### Installation
 
 **Clone the repository**
