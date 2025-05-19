@@ -1,5 +1,5 @@
 import express from 'express';
-import {getAllGames} from '../lib/db.js';
+import {getAllGames, deleteReview} from '../lib/db.js';
 import db from '../lib/db.js';
 // Middleware to check admin privileges
 function adminOnly(req, res, next) {
@@ -110,5 +110,16 @@ router.get('/games/all', async (req, res) => {
 });
 
 // #endregion
+
+// Delete any review (admin)
+router.delete('/games/:id/review/:reviewId', async (req, res) => {
+	const {reviewId} = req.params;
+	try {
+		await deleteReview({reviewId, isAdmin: true});
+		res.json({success: true});
+	} catch (err) {
+		res.status(500).json({success: false, error: err.message});
+	}
+});
 
 export default router;

@@ -121,7 +121,7 @@ async function adminDeleteReview(reviewId) {
     if (!confirm('Admin: Delete this review?')) return;
     submitting.value = true;
     try {
-        const res = await call(`/api/products/${id}/review/${reviewId}`, {method: 'DELETE'});
+        const res = await call(`/api/admin/games/${id}/review/${reviewId}`, {method: 'DELETE'});
         if (res.success) {
             await fetchReviews();
         } else {

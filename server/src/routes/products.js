@@ -129,16 +129,6 @@ router.delete('/:id/review', authMiddleware, async (req, res) => {
   }
 });
 
-// Delete any review (admin)
-router.delete('/:id/review/:reviewId', authMiddleware, async (req, res) => {
-  if (!req.user || !req.user.is_admin) return res.status(403).json({success: false, error: 'Admin only'});
-  const {reviewId} = req.params;
-  try {
-    await deleteReview({reviewId, isAdmin: true});
-    res.json({success: true});
-  } catch (err) {
-    res.status(500).json({success: false, error: err.message});
-  }
-});
+
 
 export default router;
