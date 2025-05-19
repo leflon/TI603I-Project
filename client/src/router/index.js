@@ -12,25 +12,10 @@ const router = createRouter({
       meta: {title: 'Home'}
     },
     {
-      path: '/support',
-      name: 'support',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/Support.vue'),
-      meta: {title: 'Support'}
-    },
-    {
       path: '/login',
       name: 'login',
       component: () => import('../views/Login.vue'),
       meta: {title: 'Login'}
-    },
-    {
-      path: '/account',
-      name: 'users',
-      component: () => import('../views/UserAccount.vue'),
-      meta: {title: 'My Account'}
     },
     {
       path: '/cart',
@@ -75,8 +60,7 @@ router.beforeEach((to, from) => {
   const isLoggedIn = !!store.user; // Check if user is logged in
   const isAdmin = store.user?.is_admin || false; // Check if user is admin
 
-  const protectedRoutes = ['users', 'cart'];
-  // const adminRoutes = ['admin']; // adminRoutes variable is not used, can be removed or kept for clarity
+  const protectedRoutes = ['cart', 'orders', 'admin']; // Define protected routes
 
   if (to.meta?.title) {
     document.title = to.meta.title + ' • Mist';
@@ -91,7 +75,7 @@ router.beforeEach((to, from) => {
 
   // Redirect to home if trying to access an admin route and not an admin
   if (to.meta?.requiresAdmin && !isAdmin) {
-    return {name: 'home'}; // Or to a specific 'Unauthorized' page
+    return {name: 'home'}; 
   }
 
   // Prevent logged-in users from accessing login page, redirect to home

@@ -6,9 +6,10 @@
   :style="{ '--bg-url': `url(${props.data.imageUrl})` }"
 >
     <div class="bottom">
-      <h2>{{ props.data.name }}</h2>
+      <h2>{{ props.data.name }} <span class='grade'>⭐{{ (props.data.avg_grade) }}</span>
+      <div class='stock'>{{ props.data.quantity_available }} in stock</div></h2>
       <div class="labels">
-        <span v-for="(label, index) in props.data.categories" :key="index">{{ label }}</span>
+        <span>{{ props.data.category }}</span>
       </div>
       <h3 class="price">{{ props.data.price }} €</h3>
     </div>
@@ -42,23 +43,19 @@
 
 .gamecard:hover {
   transform: scale(1.04);
-  background-image: linear-gradient(to top, rgba(255, 255, 255, 0.7), transparent), var(--bg-url);
   box-shadow: rgba(0, 0, 0, 0.211) 0px 5px 15px;
 }
 
-.gamecard:hover h2,
-.gamecard:hover h3 {
-  color: var(--color-dark);
-  transition: .2s ease;
+
+h2 {
+  display: flex;
+  align-items: center;
 }
 
-.gamecard:hover span {
-  color: var(--color-dark);
-  background-color: var(--color-secondary);
-  transition: .2s ease;
+.stock {
+  font-size: 12px;
+  color: white;
 }
-
-
 h2 {
   font-size: 25px;
   font-weight: 900;

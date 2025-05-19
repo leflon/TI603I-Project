@@ -29,13 +29,6 @@ export async function createUser(first_name, last_name, email, password) {
 	if (!isValidEmail(email))
 		throw new Error("Provided email is invalid");
 
-	let results = await connection.query(
-		'SELECT * FROM users WHERE email = ?',
-		[email]
-	);
-	if (!results.length)
-		throw new Error(`'${results.email}' is already in use.`);
-
 	if (!isValidPassword(password))
 		throw new Error('Provided password does not match requirements.');
 
@@ -43,7 +36,7 @@ export async function createUser(first_name, last_name, email, password) {
 	await connection.query(
 		"INSERT INTO Users VALUES (ID(), ?, ?, ?, ?, 0)",
 		[first_name, last_name, email, password_hash]
-	);
+	); // Will throw if email already exists
 	[results] = await connection.query(
 		"SELECT id FROM Users WHERE email = ?",
 		[email]
@@ -128,13 +121,10 @@ export async function getAllCategories(limit = 10) {
 
 export async function searchGames({
 	name = "",
+	description = "",
 	category = '',
-	minPlayers = 0,
-	maxPlayers = 100,
-	minPlayTime = 0,
-	maxPlayTime = 10000,
-	minAge = 0,
-	maxAge = 100,
+	min_stock: minStock = 0,
+	max_stock: maxStock = 1_000_000,
 	minPrice = 0,
 	maxPrice = 10000,
 	limit = 10
@@ -146,26 +136,20 @@ export async function searchGames({
 		SELECT * FROM SimpleGameView
 		WHERE
 			name LIKE ?
+			AND description LIKE ?
 			AND category LIKE ?
-			AND min_players >= ?
-			AND max_players <= ?
-			AND min_play_time >= ?
-			AND max_play_time <= ?
-			AND min_age >= ?
-			AND max_age <= ?
+			AND quantity_available >= ?
+			AND quantity_available <= ?
 			AND price >= ?
 			AND price <= ?
 		LIMIT ${limit}
 	`;
 	const params = [
 		`%${name}%`,
+		`%${description}%`,
 		`%${category}%`,
-		minPlayers,
-		maxPlayers,
-		minPlayTime,
-		maxPlayTime,
-		minAge,
-		maxAge,
+		minStock,
+		maxStock,
 		minPrice,
 		maxPrice
 	];
@@ -219,10 +203,6 @@ export async function getUserCart(userID) {
 }
 
 export async function addItemToCart(userID, gameId, quantity) {
-	const stock = await getGameQuantity(gameId);
-	if (quantity > stock)
-		throw new Error(`Not enough of '${gameId}' in stock (${stock} available)`);
-
 	let [gameExists] = await connection.query(
 		"SELECT id from boardgames WHERE id = ?", [gameId]
 	);
@@ -248,8 +228,7 @@ export async function addItemToCart(userID, gameId, quantity) {
 			[gameId, userID, newQuantity]
 		);
 	}
-	console.log(`Added ${quantity} of '${gameId}' to user '${userID}' cart (Remaining stock: ${stock - quantity})`);
-	await decreaseGameQuantity(gameId, quantity);
+	console.log(`Added ${quantity} of '${gameId}' to user '${userID}' cart`);
 }
 
 export async function removeItemFromCart(userId, gameId) {
@@ -263,72 +242,12 @@ export async function removeItemFromCart(userId, gameId) {
 		"DELETE FROM carts WHERE gameId = ? AND userId = ?",
 		[gameId, userId]
 	);
-
-	await decreaseGameQuantity(gameId, -quantity);
-
-	console.log(`Removed '${gameId}' from user '${userId}' cart (Added back ${quantity} to stock)`);
+	console.log(`Removed '${gameId}' from user '${userId}' cart`);
 }
 
 
 // #endregion
-export async function getWishlistByUserID(userID) {
-	if (!userID.length)
-		throw new Error(`Invalid parameter(s): userID='${userID}'`);
-	const [results] = await connection.query("SELECT gameId from wishlists WHERE userId = ?", [userID]);
-
-	let answer = [];
-	results.forEach((e) => {
-		answer.push(e.gameId);
-	});
-
-	return answer;
-
-}
-export async function addItemToWishlist(userID, boardgameID) {
-	if (!userID.length || !boardgameID.length)
-		throw new Error(`Invalid parameter(s): userID='${userID}', boardgameID='${boardgameID}'`);
-
-	let [gameExists] = await connection.query(
-		"SELECT id from boardgames WHERE id = ?", [boardgameID]
-	);
-	if (!gameExists.length)
-		throw Error(`No game with id '${boardgameID}' in database`);
-
-	let [gameInWishlist] = await connection.query(
-		"SELECT gameId from wishlists WHERE gameId = ? AND userId = ?",
-		[boardgameID, userID]
-	);
-	if (gameInWishlist.length) {
-		console.log(`Game '${boardgameID}' is already in user '${userID}'s wishlist !`);
-		return;
-	}
-
-	let [results] = await connection.query(
-		"INSERT INTO wishlists VALUES (?, ?)",
-		[boardgameID, userID]
-	);
-
-	return `Successfully added game '${boardgameID}' to user '${userID}'s wishlist`;
-
-}
-export async function removeItemFromWishlist(userID, boardgameID) {
-	if (!userID.length || !boardgameID.length)
-		throw new Error(`Invalid parameter(s): userID='${userID}', boardgameID='${boardgameID}'`);
-
-	let [gameExists] = await connection.query(
-		"SELECT id from boardgames WHERE id = ?", [boardgameID]
-	);
-	if (!gameExists.length)
-		throw Error(`No game with id '${boardgameID}' in database`);
-
-	const [results] = await connection.query(
-		"DELETE FROM wishlists WHERE gameId = ? AND userId = ?",
-		[boardgameID, userID]
-	);
-	return `Successfully deleted '${boardgameID}' from '${userID}'s wishlist`;
-
-
-}
+// #region Orders
 export async function getOrderByUserID(userID) {
 	const [orders] = await connection.query(
 		"SELECT * FROM FullOrders WHERE userId = ? ORDER BY createdAt DESC",
@@ -384,7 +303,6 @@ export async function submitOrder(userID) {
 	connection.beginTransaction();
 
 	// Calculate total price
-	const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 	let orderId;
 	try {
 		const [orderIdResult] = await connection.query("SELECT ID() as orderId");
@@ -392,7 +310,7 @@ export async function submitOrder(userID) {
 		// Create order
 		await connection.query(
 			"INSERT INTO Orders (id, type, totalPrice, userId, createdAt) VALUES (?, 'purchase', ?, ?, NOW())",
-			[orderId, totalPrice, userID]
+			[orderId, cartItems[0].total_price, userID]
 		);
 
 		// Add items to OrderItems
@@ -409,12 +327,12 @@ export async function submitOrder(userID) {
 		await connection.commit();
 	} catch (err) {
 		await connection.rollback();
-		console.error(err);
 		throw err;
 	}
 
 	return orderId;
 }
+//#endregion
 
 // #region Reviews
 /**

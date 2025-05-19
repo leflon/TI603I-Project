@@ -4,15 +4,9 @@ SELECT
     name,
     description,
     imageUrl,
-    avg_grade,
-    min_players,
-    max_players,
-    min_play_time,
-    max_play_time,
     quantity_available,
-    min_age,
-    max_age,
     category,
+    avg_grade,
     price
 FROM `BoardGames`;
 

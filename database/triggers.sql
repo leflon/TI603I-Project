@@ -1,28 +1,50 @@
-
-
--- Cannot insert order if quantity available = 0
 DELIMITER $$
 
-CREATE TRIGGER if_out_of_stock 
-BEFORE INSERT ON OrderItems
+CREATE TRIGGER email_check
+BEFORE INSERT ON Users
 FOR EACH ROW
 BEGIN 
-    DECLARE quantity SMALLINT;
-    SELECT quantity_available INTO quantity
-    FROM BoardGames
-    WHERE id = NEW.gameId;
-
-    IF quantity = 0 THEN
+    DECLARE email_exists INT;
+    SELECT COUNT(*) INTO email_exists
+    FROM Users
+    WHERE email = NEW.email;
+    IF email_exists > 0 THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'You cannot order a game that is out of stock.';
+        SET MESSAGE_TEXT = 'This email is already being used.';
     END IF;
 END$$
 
 DELIMITER ;
 
+DELIMITER $$
+
+CREATE TRIGGER stock_management 
+BEFORE INSERT ON OrderItems
+FOR EACH ROW
+BEGIN 
+    DECLARE quantity SMALLINT;
+    DECLARE game_name VARCHAR(255);
+    SELECT quantity_available INTO quantity
+    FROM BoardGames
+    WHERE id = NEW.gameId;
+
+    IF NEW.quantity > quantity THEN
+        SELECT g.name INTO game_name FROM SimpleGameView g WHERE g.id = NEW.gameId;
+        SET @errormsg = CONCAT('We only have ', quantity, ' units of ', game_name, ' in stock. You cannot order ', NEW.quantity, '.');
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = @errormsg; 
+            ELSE
+                UPDATE BoardGames
+                SET quantity_available = quantity_available - NEW.quantity
+                WHERE id = NEW.gameId;
+    END IF;
+END$$
+
+DELIMITER ;
 
 -- Cannot insert a Grade if it's not between 0 and 5
 DELIMITER $$
+
 CREATE TRIGGER grade_check
 BEFORE INSERT ON Reviews
 FOR EACH ROW
@@ -32,6 +54,7 @@ BEGIN
         SET MESSAGE_TEXT = 'Your rating must be between 0 and 5.';
     END IF;
 END$$
+
 DELIMITER ;
 
 -- Cannot insert a Review if an order has not been made
@@ -76,28 +99,34 @@ DELIMITER ;
 
 -- Average is updated each time a new grade is given
 DELIMITER $$
+
 CREATE TRIGGER average_grade_update
 AFTER INSERT ON Reviews
 FOR EACH ROW
 BEGIN
     CALL UPDATE_AVG_GRADE_FOR_GAME(NEW.gameId);
 END$$
+
 DELIMITER ;
 -- Average is updated each time a grade is updated
 DELIMITER $$
+
 CREATE TRIGGER average_grade_update_update
 AFTER UPDATE ON Reviews
 FOR EACH ROW
 BEGIN
     CALL UPDATE_AVG_GRADE_FOR_GAME(NEW.gameId);
 END$$
+
 DELIMITER ;
 -- Average is updated each time a grade is deleted
 DELIMITER $$
+
 CREATE TRIGGER average_grade_update_delete
 AFTER DELETE ON Reviews
 FOR EACH ROW
 BEGIN
     CALL UPDATE_AVG_GRADE_FOR_GAME(OLD.gameId);
 END$$
+
 DELIMITER ;

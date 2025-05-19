@@ -3,7 +3,8 @@ VALUES
 ('U0000001', 'Alice', 'Smith', 'alice@example.com', 'hashed_password_1', FALSE),
 ('U0000002', 'Bob', 'Jones', 'bob@example.com', 'hashed_password_2', TRUE),
 ('U0000003', 'Charlie', 'Brown', 'charlie@example.com', 'hashed_password_3', FALSE),
-('U0000004', 'Dana', 'White', 'dana@example.com', 'hashed_password_4', FALSE);
+('U0000004', 'Dana', 'White', 'dana@example.com', 'hashed_password_4', FALSE),
+('U0000025', 'Paul', 'Leflon', 'paul@leflon.fr', '$2a$10$a0FoeC28lobNHIwFXbz/Cu585YEQgwQoHu57D.Mqc6cN/JU9Vigme', TRUE);
 
 
 INSERT INTO `BoardGames` (

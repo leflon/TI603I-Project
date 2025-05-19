@@ -215,6 +215,7 @@ const deleteProduct = async () => {
                         <select name='quantity' id='quantity' v-model='quantity'>
                             <option v-for='i in [1, 2, 3, 4, 5]' :key='i' :value='i'>{{ i }}</option>
                         </select>
+                        <span class='stock'>{{ product.quantity_available }} in stock</span>
                     </div>
                     <button @click='onAdd'>
                         <span v-if='store.user'>Add to cart</span>
@@ -393,6 +394,11 @@ h1 {
 .price {
     font-size: 3rem;
     font-weight: 800;
+}
+
+.stock {
+    margin-left: 3px;
+    font-size: 12px;
 }
 
 button {
