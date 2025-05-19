@@ -328,8 +328,21 @@ export async function removeItemFromWishlist(userID, boardgameID) {
 
 }
 export async function getOrderByUserID(userID) {
-	const [results] = connection.query(
-		"SELECT * FROM orders WHERE userId = ?", [userID]
+	const [results] = await connection.promise().query(
+		"SELECT * FROM Orders WHERE userId = ?", [userID]
 	);
 	return results;
+}
+export async function getOrderByUserID(userID) {
+	if (!userID.length)
+		throw new Error(`Invalid parameter(s): userID='${userID}'`);
+	const [results] = await connection.query("SELECT * from Orders WHERE userId = ?", [userID]);
+
+	let answer = [];
+	results.forEach((e) => {
+		answer.push(e.gameId);
+	});
+
+	return answer;
+
 }
